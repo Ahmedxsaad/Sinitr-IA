@@ -1,0 +1,12 @@
+# Normalize line endings to LF across all platforms.
+* text=auto eol=lf
+
+# Treat these as binary so git does not try to diff or normalize them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.mp3 binary
+*.wav binary
+*.m4a binary
+*.pdf binary
