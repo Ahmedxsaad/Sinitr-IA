@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { AccidentEvidenceTwin, ImpactArea, Locale } from '@sinistria/contracts';
+import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
 
 // Mirrors the ImpactArea vocabulary from the contract for the direction picker.
 const DIRECTIONS: ImpactArea[] = [
@@ -237,7 +238,14 @@ export default function ReportPage() {
 
       {twin && (
         <div className="card result">
-          <p className="route">{twin.recommendation?.route.replace('_', ' ') ?? twin.state}</p>
+          <p>
+            {twin.recommendation ? (
+              <RouteBadge route={twin.recommendation.route} />
+            ) : (
+              <span className="muted">{twin.state}</span>
+            )}{' '}
+            <ConfidenceBadge confidence={twin.overallConfidence.label} />
+          </p>
           <p>
             Claim <strong>{twin.claimId}</strong> was prepared. An adjuster owns the final decision.
           </p>
