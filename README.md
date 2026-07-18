@@ -97,6 +97,8 @@ schema. See [data/README.md](data/README.md).
   remaining hackathon window.
 - [docs/testing-and-security.md](docs/testing-and-security.md) - audit scope,
   verification results, findings, and deployment controls.
+- [docs/data-room.md](docs/data-room.md) - architecture, data description,
+  tech stack, and test plan in one reference.
 - [CLAUDE.md](CLAUDE.md) - rules for AI agents and contributors.
 
 ## Status
