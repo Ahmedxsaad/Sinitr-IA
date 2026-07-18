@@ -111,6 +111,36 @@ export const anomalyFlagSchema = z.object({
 });
 export type AnomalyFlag = z.infer<typeof anomalyFlagSchema>;
 
+/**
+ * A node in the relationship-graph view: the claim under review, or an entity
+ * it shares with another claim. `type` is intentionally limited to what the
+ * seeded graph can actually back today (see improvements P2.3 / decision log);
+ * it grows only when the seed data grows with it.
+ */
+export const graphNodeSchema = z.object({
+  id: z.string(),
+  type: z.enum(['claim', 'phone']),
+  label: z.string(),
+  /** Whether this node is the claim under review, so the cockpit can highlight it. */
+  isFocus: z.boolean(),
+});
+export type GraphNode = z.infer<typeof graphNodeSchema>;
+
+/** A relationship between two graph nodes. `relation` is neutral: it names the shared evidence, never a person. */
+export const graphEdgeSchema = z.object({
+  source: z.string(),
+  target: z.string(),
+  relation: z.string(),
+});
+export type GraphEdge = z.infer<typeof graphEdgeSchema>;
+
+/** The relationship-graph view for one claim. Empty when nothing was found. */
+export const graphViewSchema = z.object({
+  nodes: z.array(graphNodeSchema),
+  edges: z.array(graphEdgeSchema),
+});
+export type GraphView = z.infer<typeof graphViewSchema>;
+
 /** The prepared recommendation. A human still owns the decision. */
 export const recommendationSchema = z.object({
   route: claimRouteSchema,
@@ -140,6 +170,7 @@ export const accidentEvidenceTwinSchema = z.object({
   consistency: consistencyEvidenceSchema.nullable(),
   completeness: completenessSchema.nullable(),
   anomalies: z.array(anomalyFlagSchema),
+  graphView: graphViewSchema.nullable(),
   recommendation: recommendationSchema.nullable(),
 
   overallConfidence: confidenceSchema,

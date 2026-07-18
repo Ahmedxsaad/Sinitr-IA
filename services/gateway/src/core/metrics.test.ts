@@ -20,6 +20,7 @@ function buildTwin(overrides: Partial<AccidentEvidenceTwin>): AccidentEvidenceTw
     consistency: null,
     completeness: null,
     anomalies: [],
+    graphView: null,
     recommendation: null,
     overallConfidence: makeConfidence(0.5),
     audit: [],

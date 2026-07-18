@@ -43,7 +43,7 @@ Implemented as `computeMetrics`, a pure aggregation over the existing claim
 store, rather than a separate mutable metrics store: the Twin's audit trail
 already carries everything needed, and a second store risked drifting from it.
 
-### B-3 Graph reveal for the suspicious case
+### B-3 Graph reveal for the suspicious case - done, see D-0015
 
 The graph service gains a view endpoint that returns seeded nodes and edges
 (claims, vehicles, phones, garages) for a claim id, sourced from
@@ -52,6 +52,15 @@ as needed, decision-log entry required). Gateway aggregates it into the claim
 detail response. Cockpit renders a one-click reveal panel (inline SVG is
 enough) on the investigate route. Neutral language only: flag evidence
 patterns, never people.
+
+Implemented as a `graphView` field on the Twin itself (nodes limited to
+`claim` and `phone`, matching what the seed data backs today; `vehicle` and
+`garage` are a follow-up once the seed data models them), built by
+`buildGraphView` as a pure function of the anomalies the pipeline already
+detected, so the view can never disagree with the anomaly flags it explains.
+Visual verification with a headless-browser screenshot caught two rendering
+bugs before commit (an SVG scaling issue and overlapping edge labels), both
+fixed and reverified.
 
 ## P1 - strong if time allows
 

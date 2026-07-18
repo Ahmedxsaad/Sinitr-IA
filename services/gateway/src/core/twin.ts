@@ -32,6 +32,7 @@ export function createInitialTwin(
     consistency: null,
     completeness: null,
     anomalies: [],
+    graphView: null,
     recommendation: null,
     overallConfidence: makeConfidence(0.3),
     audit: [{ at: now, actor: 'gateway', action: 'claim.created' }],
