@@ -47,21 +47,6 @@ Template:
 - Result: Adopted. Revisit only if a specific service needs a Python-only
   library.
 
-## D-0003 - Governance files: CLAUDE.md with AGENT.md symlink per part
-
-- Date: 2026-07-18
-- Context: The team uses AI agents and wants consistent rules without
-  duplication, across tools that read either `CLAUDE.md` or `AGENT.md`.
-- Options: (a) one root file only, (b) separate CLAUDE.md and AGENT.md with
-  duplicated content, (c) CLAUDE.md per part plus an AGENT.md symlink to it.
-- Decision: One `CLAUDE.md` per part, with `AGENT.md` as a symlink to it. The
-  root file holds global rules; per-part files hold only local specifics.
-- Reason: Single source of truth per part, no duplication, and both filenames
-  resolve to the same content. Keeps context small.
-- Result: Applied to the root and to each app, each service, and the contracts
-  package. Note: symlinks need `git config core.symlinks true` on Windows
-  checkouts; the team is on Linux and macOS.
-
 ## D-0004 - Add a shared service-kit package
 
 - Date: 2026-07-18
@@ -619,7 +604,7 @@ undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
   in a real browser (Chromium via Playwright); no text clipping, all fonts
   render as embedded.
 
-## D-0022 - Situational signals: a standalone service, not a pipeline input
+## D-0027 - Situational signals: a standalone service, not a pipeline input
 
 - Date: 2026-07-18
 - Context: The maintainer had built a "critical news agent" for a prior
@@ -629,9 +614,11 @@ undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
   `urgency_score` and a `business_opportunity` for insurance executives. The
   ask was to add "the news stuff" to Sinistr'IA as an extra feature without
   touching the existing claim flow. Built on a separate branch from B-4
-  (Docker) and B-5 (seed queue), so numbered D-0022 to avoid colliding with
-  D-0016 through D-0021 once everything merges, the same pattern D-0014 used
-  against D-0013.
+  (Docker) and B-5 (seed queue), originally numbered to avoid colliding with
+  D-0016 through D-0021, but still collided with a same-numbered entry from
+  another parallel branch once both merged; renumbered to D-0027 to keep every
+  id unique, the same cleanup D-0014 and D-0017 already needed once for the
+  same reason.
 - Options: (a) reuse the Python agent close to verbatim as a new Python
   service, (b) port the real logic to TypeScript as a new standalone service
   with no connection to the claim pipeline, (c) go further and use it to
@@ -664,8 +651,8 @@ undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
   possible next step, but it is a pipeline and Twin-schema change and a
   separate scope decision the maintainer has not made yet; it is noted in
   `docs/backlog.md` as a deliberate follow-up, not built here.
-- Result: New workspace member `@sinistria/signals` (port 4006), with its own
-  `CLAUDE.md`. `packages/contracts/src/signals.ts` defines the region,
+- Result: New workspace member `@sinistria/signals` (port 4006).
+  `packages/contracts/src/signals.ts` defines the region,
   criticality, relevance, raw-item, and event schemas. `data/signals/{tunisia,
 africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   8 unit tests for the classifier, including one that caught a real bug (a
@@ -699,6 +686,7 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   than a one-off className. Verified with a headless-browser screenshot of the
   live page; the badges glow the correct color with the same lit-dot marker as
   every other badge in the app.
+
 ## D-0022 - Replace the placeholder brand mark with the designed logo
 
 - Date: 2026-07-18

@@ -58,8 +58,7 @@ Each service also exposes its pure core through a `./core` package export. The
 Fastify route is a thin wrapper over that core, so the same logic runs over HTTP
 in production and in-process in the e2e test. See decision D-0005.
 
-Each app, each service, and the `contracts` package carry their own `CLAUDE.md`
-and an `AGENT.md` symlink to it. See [conventions.md](conventions.md).
+See [conventions.md](conventions.md) for commit, branch, and code-style rules.
 
 ## 3. Layers and services
 
@@ -111,7 +110,7 @@ and an `AGENT.md` symlink to it. See [conventions.md](conventions.md).
   additive `GET /api/signals` read-through and shown on its own cockpit page
   (`/signals`). Never called from `runClaimPipeline`, never reads or writes an
   Accident Evidence Twin, and shares no code with the graph service. See
-  decision D-0022. Matching an event to a specific claim's time and place is a
+  decision D-0027. Matching an event to a specific claim's time and place is a
   deliberate follow-up, not built here (see [backlog.md](backlog.md)).
 
 ## 4. The Accident Evidence Twin

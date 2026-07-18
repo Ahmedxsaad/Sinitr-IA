@@ -9,10 +9,13 @@ than repeating it, per this repo's own documentation convention.
 ![System architecture](diagrams/architecture.svg)
 
 Two frontends (`apps/mobile`, `apps/cockpit`) talk to one gateway, which
-routes to five backend services. Each service's hosted-AI adapter and the
-gateway's claim store sit behind stable interfaces designed to swap in a real
-provider and a persistent database without touching the business logic that
-calls them (see [architecture.md](architecture.md) section 8 and
+routes to five claim-pipeline services (intake, evidence, claims, graph,
+notify) plus a standalone situational-signals feed (see
+[decision-log.md](decision-log.md) D-0027) that never touches the claim
+pipeline itself. Each service's hosted-AI adapter and the gateway's claim
+store sit behind stable interfaces designed to swap in a real provider and a
+persistent database without touching the business logic that calls them (see
+[architecture.md](architecture.md) section 8 and
 [decision-log.md](decision-log.md) D-0007). The demo runs every adapter
 deterministically, so the full flow works with no live network call.
 

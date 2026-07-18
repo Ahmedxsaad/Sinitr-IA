@@ -1,41 +1,72 @@
 # Sinistr'IA
 
-Derja-first AI accident witness for motor insurance claims. It guides evidence
-capture in the first minutes after a crash and produces an explainable,
-settlement-ready Accident Evidence Twin. The machine prepares the
-recommendation. A qualified human owns the decision.
+**A Derja-first AI accident witness for motor insurance claims.**
 
-North star: Capture the truth. Fast-track the honest. Investigate the suspicious.
+In the first minutes after a crash it guides the driver through voice, photo,
+and document capture, then turns everything into one explainable,
+settlement-ready Accident Evidence Twin. The machine prepares the
+recommendation, evidence, policy clause, and confidence attached. A qualified
+human owns every decision.
+
+> North star: **Capture the truth. Fast-track the honest. Investigate the
+> suspicious.**
+
+![System architecture](docs/diagrams/architecture.svg)
+
+## Quick links
+
+- [Try the prototype](#try-the-prototype) - run it in under five minutes
+- [docs/data-room.md](docs/data-room.md) - architecture, data, stack, test plan
+- [docs/concept-note.md](docs/concept-note.md) - problem, market, Business Model Canvas
+- [docs/demo-video-script.md](docs/demo-video-script.md) - the submission video's shot list
 
 ## What this repo is
 
-A microservices monorepo (pnpm workspaces). Two frontends, six backend
-services, and shared libraries. See [docs/plan.md](docs/plan.md) for the plan
-and [docs/architecture.md](docs/architecture.md) for how it fits together.
+A microservices monorepo (pnpm workspaces): two frontends, six backend
+services, and five shared packages, all behind one shared Accident Evidence
+Twin contract.
 
 ```text
 apps/       user-facing frontends (mobile customer journey, adjuster cockpit)
-services/   independent backend services (gateway, intake, evidence, claims, graph, notify)
-packages/   shared libraries (contracts, config, logger, ui)
-infra/      deployment and local orchestration
+services/   independent backend services (gateway, intake, evidence, claims,
+            graph, notify, and a standalone situational-signals feed)
+packages/   shared libraries (contracts, config, logger, service-kit, ui)
+infra/      Docker images and local orchestration
 data/       synthetic demo data (claims, policies, media, graph)
-docs/       plan, architecture, conventions, decision log, improvements
+docs/       plan, architecture, conventions, decision log, business docs
 scripts/    developer and setup scripts
 ```
+
+See [docs/plan.md](docs/plan.md) for the product plan and
+[docs/architecture.md](docs/architecture.md) for the full component list, data
+flow, and contracts.
 
 ## Getting started
 
 Requirements: Node 20 or newer and pnpm.
 
 ```bash
-pnpm install            # install all workspace dependencies
-pnpm dev                # run every service and both apps in watch mode
-pnpm typecheck          # typecheck every package
-pnpm test               # run unit and end-to-end tests
+pnpm install     # install all workspace dependencies
+pnpm dev         # run every service and both apps in watch mode
+pnpm typecheck   # typecheck every package
+pnpm test        # run unit and end-to-end tests
 ```
 
 Local ports: gateway 4000, intake 4001, evidence 4002, claims 4003, graph 4004,
-notify 4005, mobile app 3000, cockpit app 3001.
+notify 4005, signals 4006, mobile app 3000, cockpit app 3001.
+
+## Run with Docker
+
+Requirements: Docker and Docker Compose. No Node or pnpm install needed on the
+host.
+
+```bash
+docker compose -f infra/compose/docker-compose.yml up --build
+```
+
+Brings up all seven backend services (ports 4000-4006) and both frontends
+(mobile on 3000, cockpit on 3001) in demo mode. One Dockerfile per part lives
+in `infra/docker`; see [infra/README.md](infra/README.md).
 
 ## Try the prototype
 
@@ -48,30 +79,17 @@ routes the moment `DEMO_MODE=false`, see [Configuration](#configuration).
    "Load demo case". Submit through voice capture; the claim fast-tracks.
 2. Reload the page, press "Load suspicious demo" instead, and submit it.
    It routes to investigate, with the reason shown, not just a score.
-3. Open the cockpit (`localhost:3001` or `:3001` on Docker) and find both
-   claims already in the queue (seeded on boot, see
-   [decision-log.md](docs/decision-log.md) D-0017). Open the suspicious one
-   to see its relationship graph reveal, then open the honest one and
-   approve it, this sends the customer notification.
+3. Open the cockpit (`localhost:3001`) and find both claims already in the
+   queue (seeded on boot, see [decision-log.md](docs/decision-log.md)
+   D-0017). Open the suspicious one to see its relationship graph reveal,
+   then open the honest one and approve it, this sends the customer
+   notification.
 
-Every AI adapter (speech, vision, language) and the claim store sit behind
-a stable interface designed to swap in a real hosted provider and a
-persistent database (see [docs/architecture.md](docs/architecture.md)
-section 8); the demo runs them deterministically so the walkthrough above
-never depends on a live network call or a seeded account.
-
-## Run with Docker
-
-Requirements: Docker and Docker Compose. No Node or pnpm install needed on the
-host.
-
-```bash
-docker compose -f infra/compose/docker-compose.yml up --build
-```
-
-Brings up all six backend services (ports 4000-4005) and both frontends
-(mobile on 3000, cockpit on 3001) in demo mode. One Dockerfile per part lives
-in `infra/docker`; see [infra/README.md](infra/README.md).
+Every AI adapter (speech, vision, language) and the claim store sit behind a
+stable interface designed to swap in a real hosted provider and a persistent
+database (see [docs/architecture.md](docs/architecture.md) section 8); the
+demo runs them deterministically so the walkthrough above never depends on a
+live network call or a seeded account.
 
 ## Configuration
 
@@ -96,7 +114,9 @@ pnpm test               # unit and in-process end-to-end tests
 bash scripts/smoke.sh   # live HTTP smoke test of the honest-claim flow
 ```
 
-See [docs/testing-and-security.md](docs/testing-and-security.md) for the full
+142 tests pass across every workspace member, plus a live smoke test over
+real HTTP and a live Docker Compose run for both hero cases. See
+[docs/testing-and-security.md](docs/testing-and-security.md) for the full
 verification record.
 
 ## Sample data
@@ -105,6 +125,20 @@ verification record.
 covering the gates, scoring, and consistency checks), policy clauses, and a
 seeded relationship graph, each validated against its `packages/contracts`
 schema. See [data/README.md](data/README.md).
+
+## Responsible AI guardrails
+
+This product recommends, it never decides. Four rules hold everywhere in the
+codebase:
+
+- **No autonomous payout.** A human approves before any financial decision.
+- **No naked scores.** Every recommendation shows its evidence, the policy
+  clause, and a confidence label.
+- **Escalate by default.** Injury, disputed liability, low confidence, or
+  contradictory evidence always route to a human, never straight to a
+  decision.
+- **Neutral language.** Evidence inconsistencies are flagged, never treated
+  as an accusation.
 
 ## Documentation
 
@@ -122,8 +156,7 @@ schema. See [data/README.md](data/README.md).
 - [docs/concept-note.md](docs/concept-note.md) - the business case: problem,
   market, and a Business Model Canvas.
 - [docs/demo-video-script.md](docs/demo-video-script.md) - the shot-by-shot
-  script for the 2-minute submission video.
-- [CLAUDE.md](CLAUDE.md) - rules for AI agents and contributors.
+  script for the submission video.
 
 ## Status
 

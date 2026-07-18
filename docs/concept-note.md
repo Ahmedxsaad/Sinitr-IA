@@ -38,12 +38,12 @@ the machine never pays a claim. See [plan.md](plan.md) for scope and
 [Atlas Mag](https://www.atlas-mag.net/en/articles/tunisian-insurance-market-2025-figures),
 [Atlas Mag Q1 2026](https://www.atlas-mag.net/en/articles/tunisian-insurance-market-results-end-march-2026)):
 
-| Metric                        | 2025            | Q1 2026          |
-| ------------------------------ | --------------- | ----------------- |
-| Total insurance turnover       | 4.255 bn TND (+11.4%) | 1.401 bn TND (+10.5%) |
-| Non-life premiums              | 2.919 bn TND (+9.3%)  | -                  |
-| Motor premiums                 | 1.628 bn TND (+7.4%), 38.3% of market | -    |
-| Claims paid                    | 2.363 bn TND (+6.1%)  | 585.4 M TND (+18.4%) |
+| Metric                   | 2025                                  | Q1 2026               |
+| ------------------------ | ------------------------------------- | --------------------- |
+| Total insurance turnover | 4.255 bn TND (+11.4%)                 | 1.401 bn TND (+10.5%) |
+| Non-life premiums        | 2.919 bn TND (+9.3%)                  | -                     |
+| Motor premiums           | 1.628 bn TND (+7.4%), 38.3% of market | -                     |
+| Claims paid              | 2.363 bn TND (+6.1%)                  | 585.4 M TND (+18.4%)  |
 
 **What AI-driven claims automation delivers elsewhere** (external industry
 benchmarks, not a Sinistr'IA measured result): processing time down 50 to
@@ -61,32 +61,32 @@ Series A and Avallon Labs a $4.6M seed, both for AI claims automation
 
 ## 4. Business Model Canvas
 
-| Block                     | Content                                                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| Customer segments           | Motor insurers and mutuelles operating in Tunisia, CGA-supervised carriers first; MENA expansion afterward. |
-| Value propositions          | Insurer: faster, consistent triage, an explainable evidence twin grounded in the policy, an earlier fraud signal. Driver: a guided Derja flow built for the shock of the first ten minutes. Adjuster: one screen with the story, the evidence, and the policy match instead of stitching calls, photos, and paper constats by hand. |
-| Channels                    | Direct sales to insurer claims and operations departments, pilot partnerships, presence at insurance and insurtech industry events. |
-| Customer relationships      | Pilot then scale: a proof of concept on a limited, low-severity segment before wider rollout, dedicated onboarding, adjuster training. |
-| Revenue streams             | Per-claim processed fee or a volume-tiered SaaS license to the insurer; an optional add-on for the relationship graph and fraud module. |
-| Key resources               | The Accident Evidence Twin contract and pipeline, hosted AI adapters (speech, vision, language) behind a stable interface, the shared design system, workstream expertise across voice intake, multimodal evidence, and claims logic. |
-| Key activities              | Pipeline accuracy and safety-gate tuning, policy clause coverage expansion, integration with insurer core systems, audit trail and compliance maintenance. |
-| Key partnerships            | Pilot insurers and mutuelles, hosted AI providers for speech, vision, and language, garage or expertise networks for damage-cost grounding, CGA-facing compliance guidance. |
-| Cost structure              | Hosted AI API usage (variable, scales with claim volume), engineering by workstream, compliance and security review, sales and onboarding per pilot. |
+| Block                  | Content                                                                                                                                                                                                                                                                                                                             |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Customer segments      | Motor insurers and mutuelles operating in Tunisia, CGA-supervised carriers first; MENA expansion afterward.                                                                                                                                                                                                                         |
+| Value propositions     | Insurer: faster, consistent triage, an explainable evidence twin grounded in the policy, an earlier fraud signal. Driver: a guided Derja flow built for the shock of the first ten minutes. Adjuster: one screen with the story, the evidence, and the policy match instead of stitching calls, photos, and paper constats by hand. |
+| Channels               | Direct sales to insurer claims and operations departments, pilot partnerships, presence at insurance and insurtech industry events.                                                                                                                                                                                                 |
+| Customer relationships | Pilot then scale: a proof of concept on a limited, low-severity segment before wider rollout, dedicated onboarding, adjuster training.                                                                                                                                                                                              |
+| Revenue streams        | Per-claim processed fee or a volume-tiered SaaS license to the insurer; an optional add-on for the relationship graph and fraud module.                                                                                                                                                                                             |
+| Key resources          | The Accident Evidence Twin contract and pipeline, hosted AI adapters (speech, vision, language) behind a stable interface, the shared design system, workstream expertise across voice intake, multimodal evidence, and claims logic.                                                                                               |
+| Key activities         | Pipeline accuracy and safety-gate tuning, policy clause coverage expansion, integration with insurer core systems, audit trail and compliance maintenance.                                                                                                                                                                          |
+| Key partnerships       | Pilot insurers and mutuelles, hosted AI providers for speech, vision, and language, garage or expertise networks for damage-cost grounding, CGA-facing compliance guidance.                                                                                                                                                         |
+| Cost structure         | Hosted AI API usage (variable, scales with claim volume), engineering by workstream, compliance and security review, sales and onboarding per pilot.                                                                                                                                                                                |
 
 ## 5. Path to revenue
 
 - **Now.** A working vertical slice: two scripted hero cases plus eight
-  gate and scoring cases, both apps, six services, verified end to end. See
-  [data-room.md](data-room.md).
+  gate and scoring cases, both apps, six claim-pipeline services, verified
+  end to end. See [data-room.md](data-room.md).
 - **Next.** A pilot with one insurer on the current build's scope: low
   severity, property damage only, clear coverage (see
   [plan.md](plan.md) section 2). Pricing and integration terms are set with
   that pilot partner, not assumed in advance.
 - **Then.** Expand coverage (bodily injury, disputed liability) only once
   escalation and human-review controls are proven at pilot scale, per the
-  product guardrails in [../CLAUDE.md](../CLAUDE.md): no autonomous payout,
-  every recommendation shows its evidence, injury or low confidence always
-  escalates to a human.
+  product's own guardrails (see [README.md](../README.md)): no autonomous
+  payout, every recommendation shows its evidence, injury or low confidence
+  always escalates to a human.
 
 ## 6. Team
 
