@@ -13,6 +13,7 @@ import {
   coverageEvidenceSchema,
   damageEvidenceSchema,
   eventTimelineSchema,
+  graphViewSchema,
   recommendationSchema,
   structuredFactsSchema,
 } from './twin.js';
@@ -113,6 +114,7 @@ export type GraphRequest = z.infer<typeof graphRequestSchema>;
 /** Graph to gateway. */
 export const graphResultSchema = z.object({
   anomalies: z.array(anomalyFlagSchema),
+  view: graphViewSchema,
 });
 export type GraphResult = z.infer<typeof graphResultSchema>;
 
