@@ -280,3 +280,49 @@ Template:
   headless-browser screenshot. After merging with D-0013 (`main`), full
   verification (typecheck, lint, format, 128 tests, both app builds, the live
   smoke script) is clean on the combined tree.
+
+## D-0015 - Graph view added to the Twin, built from the anomalies already detected
+
+- Date: 2026-07-18
+- Context: The backlog (B-3) called for the suspicious case's demo centerpiece:
+  a relationship-graph reveal in the cockpit, currently only text anomaly
+  flags. The seeded graph (`data/graph/seed.json`) tracks two relationship
+  kinds today: a garage phone number reused across claims, and a reused photo.
+  It does not model a "garage" or "vehicle" as its own entity, only phone
+  numbers and images.
+- Options: (a) a separate `GET /api/claims/:id/graph` gateway endpoint that
+  recomputes the graph on request, (b) a `graphView` field on the Twin itself,
+  built once during the pipeline run alongside the anomaly flags, (c) hand-roll
+  the graph as freeform data in the anomaly `description` strings and let the
+  cockpit parse them.
+- Decision: (b). `graphViewSchema` (nodes and edges) joins `packages/contracts`
+  and is added to `accidentEvidenceTwinSchema` as `graphView`, nullable like
+  the other pipeline-built sections. `services/graph/src/core/view.ts` exports
+  `buildGraphView(request, anomalies)`, a pure function of the anomalies the
+  same request already produced, so the graph view can never disagree with the
+  anomaly flags it explains. Node `type` is limited to `'claim' | 'phone'`,
+  matching what the seed data actually backs; a `vehicle` or `garage` node type
+  is a natural follow-up once the seed data models one, not before.
+- Reason: A Twin field matches how every other section (damage, coverage,
+  consistency) is already built and matches architecture.md's principle of
+  "one coherent system on screen... not internal orchestration": the cockpit's
+  detail fetch does not change shape, it just reads one more field. Building it
+  from the same `anomalies` array recomputed nothing and could not drift.
+  Option (c) would have made the anomaly `description` do double duty as both
+  human-readable text and a machine format, which is exactly the kind of
+  implicit contract this project's schema-first rule exists to avoid.
+- Result: `buildGraphView` has 6 unit tests. Both golden Twin fixtures were
+  regenerated (honest: empty view; suspicious: 3 nodes, 3 edges) and
+  hand-verified against the anomaly data before being committed. The cockpit
+  claim detail page renders a one-click "Reveal relationship graph" panel
+  (inline SVG, no charting library) below the decision/why/proof hierarchy,
+  visible only when a claim has anomalies. Visual verification with a
+  headless-browser screenshot caught and fixed two real rendering bugs before
+  commit: the SVG's `width: 100%` stretched a fixed-unit viewBox so text
+  rendered roughly 2x too large (fixed with explicit `width`/`height`
+  attributes and `max-width` in CSS), and two edge labels converging near the
+  focus node overlapped each other and the phone node's own label (fixed by
+  shortening the relation text, positioning labels at 40% along their edge
+  instead of the midpoint, and alternating the perpendicular offset by edge
+  index). Full verification (typecheck, lint, format, 134 tests, both app
+  builds, the live smoke script) is clean.

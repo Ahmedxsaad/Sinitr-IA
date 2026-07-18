@@ -3,8 +3,10 @@
  */
 import type { GraphRequest, GraphResult } from '@sinistria/contracts';
 import { detectAnomalies } from './anomalies.js';
+import { buildGraphView } from './view.js';
 
-/** Process a graph request into the list of anomaly flags for the claim. */
+/** Process a graph request into the anomaly flags and relationship-graph view for the claim. */
 export async function processGraph(request: GraphRequest): Promise<GraphResult> {
-  return { anomalies: detectAnomalies(request) };
+  const anomalies = detectAnomalies(request);
+  return { anomalies, view: buildGraphView(request, anomalies) };
 }

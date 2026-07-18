@@ -98,6 +98,7 @@ export async function runClaimPipeline(
     mediaRefs: request.mediaRefs,
   });
   twin.anomalies = graph.anomalies;
+  twin.graphView = graph.view;
   appendAudit(twin, 'graph', 'graph.checked', `${graph.anomalies.length} anomaly signal(s)`);
 
   // 4. Recommend: ground coverage, apply trust gates, choose a route.

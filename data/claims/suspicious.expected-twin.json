@@ -96,6 +96,45 @@
       "relatedClaimId": "CLM-2026-000188"
     }
   ],
+  "graphView": {
+    "nodes": [
+      {
+        "id": "claim:CLM-GOLDEN-SUSPICIOUS",
+        "type": "claim",
+        "label": "CLM-GOLDEN-SUSPICIOUS",
+        "isFocus": true
+      },
+      {
+        "id": "claim:CLM-2026-000188",
+        "type": "claim",
+        "label": "CLM-2026-000188",
+        "isFocus": false
+      },
+      {
+        "id": "phone:+21620000009",
+        "type": "phone",
+        "label": "+21620000009",
+        "isFocus": false
+      }
+    ],
+    "edges": [
+      {
+        "source": "claim:CLM-GOLDEN-SUSPICIOUS",
+        "target": "phone:+21620000009",
+        "relation": "used this garage phone"
+      },
+      {
+        "source": "phone:+21620000009",
+        "target": "claim:CLM-2026-000188",
+        "relation": "also used by this claim"
+      },
+      {
+        "source": "claim:CLM-GOLDEN-SUSPICIOUS",
+        "target": "claim:CLM-2026-000188",
+        "relation": "shares a photo with this claim"
+      }
+    ]
+  },
   "recommendation": {
     "route": "investigate",
     "reasons": [
