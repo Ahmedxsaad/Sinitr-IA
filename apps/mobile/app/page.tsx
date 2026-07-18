@@ -1,8 +1,15 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import type { AccidentEvidenceTwin, ImpactArea, Locale } from '@sinistria/contracts';
-import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
+import { BrandMark, ConfidenceBadge, RouteBadge } from '@sinistria/ui';
+
+/** Sets the --rise-delay custom property the .rise animation reads, so a
+ * sequence of cards can stagger in one after another. */
+function riseDelay(seconds: number): CSSProperties {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
 
 // Mirrors the ImpactArea vocabulary from the contract for the direction picker.
 const DIRECTIONS: ImpactArea[] = [
@@ -198,12 +205,28 @@ export default function ReportPage() {
 
   return (
     <main className="phone" dir={isRtl ? 'rtl' : undefined} lang={isRtl ? 'ar' : undefined}>
-      <h1>AMIN</h1>
-      <p className="assistant">I am here to help. Let us capture what happened, calmly.</p>
+      <header className="brand rise">
+        <span className="brand-mark">
+          <BrandMark size={26} />
+        </span>
+        <span>
+          <span className="brand-name">Sinistr&apos;IA</span>
+          <br />
+          <span className="brand-tag">AI accident witness</span>
+        </span>
+      </header>
+
+      <div className="hero rise" style={riseDelay(0.05)}>
+        <h1>Let us capture what happened.</h1>
+        <p className="assistant">
+          I am AMIN. Take a breath, then tell me in your own words. I will guide you, one step at a
+          time.
+        </p>
+      </div>
 
       {!twin && (
         <>
-          <div className="card">
+          <div className="card rise" style={riseDelay(0.1)}>
             <span id="locale-label" className="group-label">
               Language
             </span>
@@ -222,7 +245,7 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card rise" style={riseDelay(0.16)}>
             <span id="safety-label" className="group-label">
               Is anyone injured or in danger?
             </span>
@@ -246,7 +269,7 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="card">
+          <div className="card rise" style={riseDelay(0.22)}>
             {voiceState !== 'revealed' && (
               <span id="voice-label" className="group-label">
                 Tell me what happened
@@ -261,7 +284,15 @@ export default function ReportPage() {
                   aria-label="Record your voice"
                   onClick={startVoiceCapture}
                 >
-                  <span aria-hidden="true">●</span>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="9" y="2.5" width="6" height="11" rx="3" fill="currentColor" />
+                    <path
+                      d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18.5v3"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
                 </button>
                 <p className="assistant">Tap to record your voice</p>
                 <button type="button" className="secondary small-link" onClick={skipVoiceCapture}>
@@ -311,7 +342,7 @@ export default function ReportPage() {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="demo-row">
             <button type="button" className="secondary" onClick={loadHonestDemo}>
               Load demo case
             </button>
@@ -377,7 +408,7 @@ export default function ReportPage() {
 
               {error && <p className="error">{error}</p>}
 
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="actions">
                 <button type="button" onClick={submit} disabled={submitting}>
                   {submitting ? 'Submitting...' : 'Submit report'}
                 </button>
@@ -388,17 +419,18 @@ export default function ReportPage() {
       )}
 
       {twin && (
-        <div className="card result">
-          <p>
+        <div className="card result rise">
+          <div className="result-headline">
             {twin.recommendation ? (
               <RouteBadge route={twin.recommendation.route} />
             ) : (
               <span className="muted">{twin.state}</span>
-            )}{' '}
+            )}
             <ConfidenceBadge confidence={twin.overallConfidence.label} />
-          </p>
+          </div>
           <p>
-            Claim <strong>{twin.claimId}</strong> was prepared. An adjuster owns the final decision.
+            Claim <strong className="claim-id">{twin.claimId}</strong> was prepared. An adjuster
+            owns the final decision.
           </p>
           {twin.completeness && (
             <>
