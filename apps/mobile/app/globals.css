@@ -1,7 +1,6 @@
+@import '@sinistria/ui/tokens.css';
+
 :root {
-  --green-900: #0b3d2e;
-  --green-700: #14634a;
-  --green-500: #1f9d6b;
   --bg: #0b1f18;
   --panel: #10362a;
   --text: #eaf3ee;
@@ -83,7 +82,7 @@ button {
   border: 1px solid transparent;
   padding: 10px 14px;
   font: inherit;
-  background: var(--green-500);
+  background: var(--sinistria-green-500);
   color: #04170f;
   font-weight: 600;
 }
@@ -96,15 +95,14 @@ button.secondary {
 }
 
 button[aria-pressed='true'] {
-  outline: 2px solid var(--green-500);
+  outline: 2px solid var(--sinistria-green-500);
 }
 
-.result .route {
-  font-size: 18px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--green-500);
+/* A bigger badge for the result hero moment; color comes from the shared
+   badge-route-* classes, so it still reflects the actual route. */
+.result .badge {
+  font-size: 16px;
+  padding: 6px 14px;
 }
 
 .meter {
@@ -118,9 +116,13 @@ button[aria-pressed='true'] {
 .meter > span {
   display: block;
   height: 100%;
-  background: var(--green-500);
+  background: var(--sinistria-green-500);
 }
 
 .error {
   color: #ffb4a2;
+}
+
+.muted {
+  color: var(--muted);
 }
