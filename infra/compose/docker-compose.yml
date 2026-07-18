@@ -1,0 +1,129 @@
+# Local orchestration for the full stack. Run from the repo root:
+#   docker compose -f infra/compose/docker-compose.yml up --build
+# Demo mode stays on (deterministic mock adapters, seeded data, no live
+# providers, no ADJUSTER_TOKEN needed). See ../README.md and .env.example.
+name: sinistria
+
+x-backend-env: &backend-env
+  DEMO_MODE: 'true'
+  LOG_LEVEL: info
+
+x-backend-healthcheck: &backend-healthcheck
+  interval: 5s
+  timeout: 3s
+  retries: 20
+
+services:
+  intake:
+    build:
+      context: ../..
+      dockerfile: infra/docker/intake.Dockerfile
+    ports:
+      - '4001:4001'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4001/health']
+
+  evidence:
+    build:
+      context: ../..
+      dockerfile: infra/docker/evidence.Dockerfile
+    ports:
+      - '4002:4002'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4002/health']
+
+  claims:
+    build:
+      context: ../..
+      dockerfile: infra/docker/claims.Dockerfile
+    ports:
+      - '4003:4003'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4003/health']
+
+  graph:
+    build:
+      context: ../..
+      dockerfile: infra/docker/graph.Dockerfile
+    ports:
+      - '4004:4004'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4004/health']
+
+  notify:
+    build:
+      context: ../..
+      dockerfile: infra/docker/notify.Dockerfile
+    ports:
+      - '4005:4005'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4005/health']
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: infra/docker/gateway.Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      <<: *backend-env
+      INTAKE_URL: http://intake:4001
+      EVIDENCE_URL: http://evidence:4002
+      CLAIMS_URL: http://claims:4003
+      GRAPH_URL: http://graph:4004
+      NOTIFY_URL: http://notify:4005
+    depends_on:
+      intake:
+        condition: service_healthy
+      evidence:
+        condition: service_healthy
+      claims:
+        condition: service_healthy
+      graph:
+        condition: service_healthy
+      notify:
+        condition: service_healthy
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4000/health']
+
+  mobile:
+    build:
+      context: ../..
+      dockerfile: infra/docker/mobile.Dockerfile
+      # Next.js bakes the /api rewrite target into the build, so the gateway
+      # hostname must be passed at build time, not just as a runtime env var.
+      args:
+        GATEWAY_URL: http://gateway:4000
+    ports:
+      - '3000:3000'
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  cockpit:
+    build:
+      context: ../..
+      dockerfile: infra/docker/cockpit.Dockerfile
+      args:
+        GATEWAY_URL: http://gateway:4000
+    ports:
+      - '3001:3001'
+    depends_on:
+      gateway:
+        condition: service_healthy
