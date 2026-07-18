@@ -111,3 +111,51 @@ Template:
 - Reason: It proves the flow without infrastructure and has a clean seam to
   replace with persistence later.
 - Result: In use. Claims survive submit, review, and approval within one process.
+
+## D-0008 - Boundary hardening for confirmation, limits, and failures
+
+- Date: 2026-07-18
+- Context: The audit found that unconfirmed reports entered the pipeline, large
+  payloads had no application-level bounds, and unexpected HTTP errors exposed
+  their internal messages.
+- Options: (a) rely on the browser and Fastify defaults, (b) enforce the rules
+  in shared Zod schemas and sanitize server errors, (c) add a separate validation
+  service.
+- Decision: Enforce confirmation and bounded payloads in `packages/contracts`,
+  use neutral boundary errors in `packages/service-kit`, and keep the rules
+  deterministic in each service.
+- Reason: The shared contract is the earliest common boundary, and the change
+  prevents malformed or unapproved data from reaching business logic without
+  adding another runtime dependency.
+- Result: The contract tests cover rejection cases, and the full suite and live
+  smoke path pass.
+
+## D-0009 - Pin patched PostCSS in the workspace
+
+- Date: 2026-07-18
+- Context: `pnpm audit --prod` identified a moderate PostCSS XSS advisory through
+  Next.js in the cockpit application.
+- Options: (a) accept the transitive version, (b) add a workspace override to the
+  patched compatible release, (c) replace Next.js.
+- Decision: Pin PostCSS to the patched 8.5.19 line with a pnpm override.
+- Reason: It is a compatible transitive update with no application API change;
+  replacing the framework would add unnecessary risk.
+- Result: The lockfile no longer contains PostCSS 8.4.31 and the production
+  audit reports no known vulnerabilities.
+
+## D-0010 - Guard adjuster routes outside demo mode
+
+- Date: 2026-07-18
+- Context: The audit found that any caller could read the adjuster queue and
+  submit a decision. A full identity-provider integration is not part of the
+  offline slice.
+- Options: (a) leave all routes open, (b) add a deployment bearer-token guard,
+  (c) build a complete identity and role service now.
+- Decision: Require `Authorization: Bearer <ADJUSTER_TOKEN>` for adjuster queue,
+  detail, and decision routes whenever `DEMO_MODE=false`; keep the demo open for
+  the scripted walkthrough.
+- Reason: This closes accidental unauthenticated access in non-demo deployments
+  with a small reversible boundary control while leaving the identity-provider
+  seam explicit.
+- Result: Configuration validation requires a token outside demo mode, and the
+  remaining work is documented for production identity integration.

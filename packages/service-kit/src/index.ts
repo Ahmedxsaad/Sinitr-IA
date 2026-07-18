@@ -50,7 +50,10 @@ export function createServer(options: ServiceOptions): FastifyInstance {
   app.setErrorHandler((error: FastifyError, request, reply) => {
     request.log.error({ err: error, correlationId: request.correlationId }, 'request failed');
     const status = error.statusCode ?? 500;
-    void reply.status(status).send({ error: error.message, correlationId: request.correlationId });
+    // Validation details are useful to callers, but unexpected failures can
+    // contain provider URLs, filesystem paths, or other internal data.
+    const message = status >= 500 ? 'Internal server error.' : error.message;
+    void reply.status(status).send({ error: message, correlationId: request.correlationId });
   });
 
   void app.register(async (instance) => {

@@ -22,31 +22,34 @@ import {
  * trail, the cockpit reasons, and the live metrics all share one trace.
  */
 export const traceSchema = z.object({
-  claimId: z.string(),
-  correlationId: z.string(),
+  claimId: z.string().min(1).max(128),
+  correlationId: z.string().min(1).max(128),
 });
 export type Trace = z.infer<typeof traceSchema>;
 
 /** Customer-supplied contact details. Kept minimal by data-minimization design. */
 export const contactSchema = z.object({
-  phone: z.string().min(3),
+  phone: z.string().trim().min(3).max(32),
 });
 export type Contact = z.infer<typeof contactSchema>;
 
 /** Mobile app to gateway: open a new claim. */
 export const createClaimRequestSchema = z.object({
   locale: localeSchema,
-  narrative: z.string().min(1), // stands in for the voice transcript in the mock
+  narrative: z.string().trim().min(1).max(10_000), // stands in for the voice transcript in the mock
   // Answer to the first guided question, "is anyone injured or in danger?".
   // Collected explicitly rather than guessed from free text, because safety
   // must not depend on fragile keyword parsing.
   injuryReported: z.boolean(),
   collisionDirection: impactAreaSchema.optional(),
   contact: contactSchema,
-  confirmed: z.boolean(), // the customer confirmed the structured narrative
-  mediaRefs: z.array(z.string()).default([]),
-  garagePhone: z.string().optional(), // present only in the suspicious demo case
-  seedCaseId: z.string().optional(), // selects a scripted fixture in demo mode
+  // Submission is only valid after the customer confirms the interpreted facts.
+  // An unconfirmed report must stay in the guided flow instead of entering
+  // claim processing with facts the customer has not accepted.
+  confirmed: z.literal(true),
+  mediaRefs: z.array(z.string().trim().min(1).max(512)).max(100).default([]),
+  garagePhone: z.string().trim().min(3).max(32).optional(), // present only in the suspicious demo case
+  seedCaseId: z.string().trim().min(1).max(128).optional(), // selects a scripted fixture in demo mode
 });
 export type CreateClaimRequest = z.infer<typeof createClaimRequestSchema>;
 
@@ -68,11 +71,11 @@ export type GateResult = z.infer<typeof gateResultSchema>;
 /** Gateway to intake. */
 export const intakeRequestSchema = traceSchema.extend({
   locale: localeSchema,
-  narrative: z.string().min(1),
+  narrative: z.string().trim().min(1).max(10_000),
   injuryReported: z.boolean(),
   collisionDirection: impactAreaSchema.optional(),
-  confirmed: z.boolean(),
-  mediaRefs: z.array(z.string()),
+  confirmed: z.literal(true),
+  mediaRefs: z.array(z.string().trim().min(1).max(512)).max(100),
 });
 export type IntakeRequest = z.infer<typeof intakeRequestSchema>;
 
@@ -101,9 +104,9 @@ export type EvidenceResult = z.infer<typeof evidenceResultSchema>;
 
 /** Gateway to graph. */
 export const graphRequestSchema = traceSchema.extend({
-  claimantPhone: z.string(),
-  garagePhone: z.string().optional(),
-  mediaRefs: z.array(z.string()),
+  claimantPhone: z.string().trim().min(3).max(32),
+  garagePhone: z.string().trim().min(3).max(32).optional(),
+  mediaRefs: z.array(z.string().trim().min(1).max(512)).max(100),
 });
 export type GraphRequest = z.infer<typeof graphRequestSchema>;
 
@@ -133,8 +136,8 @@ export type RecommendResult = z.infer<typeof recommendResultSchema>;
 /** Gateway to notify. */
 export const notifyRequestSchema = traceSchema.extend({
   route: claimRouteSchema,
-  phone: z.string(),
-  message: z.string(),
+  phone: z.string().trim().min(3).max(32),
+  message: z.string().trim().min(1).max(1_600),
 });
 export type NotifyRequest = z.infer<typeof notifyRequestSchema>;
 

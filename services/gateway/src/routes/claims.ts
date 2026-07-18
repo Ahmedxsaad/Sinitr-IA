@@ -4,15 +4,27 @@
  * and reads or updates the in-memory demo store.
  */
 import { randomUUID } from 'node:crypto';
+import { getConfig } from '@sinistria/config';
 import { adjusterDecisionRequestSchema, createClaimRequestSchema } from '@sinistria/contracts';
 import { newCorrelationId } from '@sinistria/logger';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { createHttpClients } from '../core/clients.js';
 import { applyDecision } from '../core/decision.js';
 import { runClaimPipeline } from '../core/pipeline.js';
 import { claimStore } from '../core/store.js';
 
 const clients = createHttpClients();
+
+/**
+ * Protect adjuster-only operations until the identity-provider integration is
+ * available. Demo mode intentionally stays open for the offline walkthrough.
+ */
+function isAuthorizedAdjuster(request: FastifyRequest): boolean {
+  const config = getConfig();
+  if (config.DEMO_MODE) return true;
+  const authorization = request.headers.authorization;
+  return authorization === `Bearer ${config.ADJUSTER_TOKEN}`;
+}
 
 /** Generate a human-friendly claim id such as "CLM-2026-4F9A2C". */
 function newClaimId(): string {
@@ -37,7 +49,10 @@ export function registerGatewayRoutes(app: FastifyInstance): void {
   });
 
   // List claims as compact summaries for the cockpit queue.
-  app.get('/api/claims', async () => {
+  app.get('/api/claims', async (request, reply) => {
+    if (!isAuthorizedAdjuster(request)) {
+      return reply.status(401).send({ error: 'Adjuster authorization required.' });
+    }
     return claimStore.list().map((record) => ({
       claimId: record.twin.claimId,
       state: record.twin.state,
@@ -49,6 +64,9 @@ export function registerGatewayRoutes(app: FastifyInstance): void {
 
   // Fetch the full Twin for the cockpit detail view.
   app.get('/api/claims/:id', async (request, reply) => {
+    if (!isAuthorizedAdjuster(request)) {
+      return reply.status(401).send({ error: 'Adjuster authorization required.' });
+    }
     const { id } = request.params as { id: string };
     const record = claimStore.get(id);
     if (!record) {
@@ -59,6 +77,9 @@ export function registerGatewayRoutes(app: FastifyInstance): void {
 
   // Apply an adjuster decision. Only a claim awaiting a decision can be acted on.
   app.post('/api/claims/:id/decision', async (request, reply) => {
+    if (!isAuthorizedAdjuster(request)) {
+      return reply.status(401).send({ error: 'Adjuster authorization required.' });
+    }
     const { id } = request.params as { id: string };
     const record = claimStore.get(id);
     if (!record) {

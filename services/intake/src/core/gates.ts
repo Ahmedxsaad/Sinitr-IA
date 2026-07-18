@@ -7,20 +7,22 @@ import type { GateResult } from '@sinistria/contracts';
 
 /**
  * Words that indicate a claim is not a simple property-damage-only case and so
- * must leave the automation path. "feu rouge" (a red traffic light) is
- * deliberately excluded so it is not confused with "feu" (fire).
+ * must leave the automation path. Bare "feu" (fire) is deliberately excluded so
+ * it is not confused with "feu rouge" (a red traffic light); the common phrases
+ * "a pris feu" / "prend feu" (caught fire) are specific enough to include
+ * without that collision.
  */
-const COMPLEXITY_KEYWORDS: readonly string[] = [
-  'incendie',
-  'fire',
-  'tonneau',
-  'rollover',
-  'flip',
-  'delit de fuite',
-  'délit de fuite',
-  'hit and run',
-  'theft',
-  'vol de voiture',
+const COMPLEXITY_PATTERNS: readonly RegExp[] = [
+  /\bincendie\b/i,
+  /\b(?:a pris feu|prend feu)\b/i,
+  /\bfire\b/i,
+  /\btonneau\b/i,
+  /\brollover\b/i,
+  /\bflip\b/i,
+  /\b(?:delit|délit) de fuite\b/i,
+  /\bhit and run\b/i,
+  /\btheft\b/i,
+  /\bvol de voiture\b/i,
 ];
 
 /** Safety gate: any reported injury or danger routes the claim to a human. */
@@ -42,10 +44,10 @@ export function runEligibilityGate(
   if (injuryReported) {
     return { passed: false, reason: 'Bodily injury is out of scope for the automated path.' };
   }
-  const lower = narrative.toLowerCase();
-  const hit = COMPLEXITY_KEYWORDS.find((keyword) => lower.includes(keyword));
+  const hit = COMPLEXITY_PATTERNS.find((pattern) => pattern.test(narrative));
   if (hit) {
-    return { passed: false, reason: `Narrative mentions a complex event ("${hit}").` };
+    const matchedText = narrative.match(hit)?.[0] ?? hit.source;
+    return { passed: false, reason: `Narrative mentions a complex event ("${matchedText}").` };
   }
   return { passed: true };
 }

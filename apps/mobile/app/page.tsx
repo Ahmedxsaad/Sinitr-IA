@@ -26,23 +26,59 @@ const HONEST_DEMO = {
   evidence: { photo: true, constat: true, invoice: true },
 };
 
+/**
+ * The scripted suspicious demo case. The reported direction (rear left)
+ * deliberately does not match the seeded visible damage (front right), and the
+ * garage phone matches one already seeded against a prior claim, so both the
+ * consistency check and the relationship graph have something to flag.
+ */
+const SUSPICIOUS_DEMO = {
+  locale: 'derja' as Locale,
+  narrative:
+    "L'accident sar fel rond point, karhba darbitni fel arriere gauche. Personne blesse. Plaque 200 TUN 3020.",
+  collisionDirection: 'rear_left' as ImpactArea,
+  phone: '+21620000055',
+  garagePhone: '+21620000009',
+  evidence: { photo: true, constat: true, invoice: true },
+};
+
 export default function ReportPage() {
   const [injuryReported, setInjuryReported] = useState<boolean | null>(null);
   const [narrative, setNarrative] = useState('');
   const [collisionDirection, setCollisionDirection] = useState<ImpactArea>('unknown');
   const [phone, setPhone] = useState('');
+  const [garagePhone, setGaragePhone] = useState('');
   const [evidence, setEvidence] = useState({ photo: false, constat: false, invoice: false });
+  // Tracks which seed media the guided-capture checkboxes should resolve to.
+  // Manual entry and the honest demo both use the 'honest' seed set; only the
+  // suspicious demo switches this, since that is the only case with evidence
+  // deliberately seeded to contradict the reported story.
+  const [demoCase, setDemoCase] = useState<'honest' | 'suspicious'>('honest');
 
   const [twin, setTwin] = useState<AccidentEvidenceTwin | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function loadHonestDemo() {
+    setDemoCase('honest');
     setInjuryReported(false);
     setNarrative(HONEST_DEMO.narrative);
     setCollisionDirection(HONEST_DEMO.collisionDirection);
     setPhone(HONEST_DEMO.phone);
+    setGaragePhone('');
     setEvidence(HONEST_DEMO.evidence);
+    setTwin(null);
+    setError(null);
+  }
+
+  function loadSuspiciousDemo() {
+    setDemoCase('suspicious');
+    setInjuryReported(false);
+    setNarrative(SUSPICIOUS_DEMO.narrative);
+    setCollisionDirection(SUSPICIOUS_DEMO.collisionDirection);
+    setPhone(SUSPICIOUS_DEMO.phone);
+    setGaragePhone(SUSPICIOUS_DEMO.garagePhone);
+    setEvidence(SUSPICIOUS_DEMO.evidence);
     setTwin(null);
     setError(null);
   }
@@ -50,9 +86,16 @@ export default function ReportPage() {
   // Turn the guided-capture checkboxes into the seed refs the mock adapters read.
   function buildMediaRefs(): string[] {
     const refs: string[] = [];
-    if (evidence.photo) refs.push(`seed:honest:vision:${collisionDirection}:cosmetic`);
-    if (evidence.constat) refs.push('seed:honest:doc:constat:standard');
-    if (evidence.invoice) refs.push('seed:honest:doc:invoice:body_panel');
+    if (demoCase === 'suspicious') {
+      // Fixed area/severity that intentionally does not match collisionDirection.
+      if (evidence.photo) refs.push('seed:suspicious:vision:front_right:moderate');
+      if (evidence.constat) refs.push('seed:suspicious:doc:constat:standard');
+      if (evidence.invoice) refs.push('seed:suspicious:doc:invoice:engine');
+    } else {
+      if (evidence.photo) refs.push(`seed:honest:vision:${collisionDirection}:cosmetic`);
+      if (evidence.constat) refs.push('seed:honest:doc:constat:standard');
+      if (evidence.invoice) refs.push('seed:honest:doc:invoice:body_panel');
+    }
     return refs;
   }
 
@@ -75,6 +118,7 @@ export default function ReportPage() {
           contact: { phone },
           confirmed: true,
           mediaRefs: buildMediaRefs(),
+          garagePhone: garagePhone || undefined,
         }),
       });
       if (!response.ok) {
@@ -167,6 +211,12 @@ export default function ReportPage() {
           <div className="card">
             <label htmlFor="phone">Your phone number</label>
             <input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
+            <label htmlFor="garage-phone">Garage phone (optional)</label>
+            <input
+              id="garage-phone"
+              value={garagePhone}
+              onChange={(event) => setGaragePhone(event.target.value)}
+            />
           </div>
 
           {error && <p className="error">{error}</p>}
@@ -177,6 +227,9 @@ export default function ReportPage() {
             </button>
             <button type="button" className="secondary" onClick={loadHonestDemo}>
               Load demo case
+            </button>
+            <button type="button" className="secondary" onClick={loadSuspiciousDemo}>
+              Load suspicious demo
             </button>
           </div>
         </>

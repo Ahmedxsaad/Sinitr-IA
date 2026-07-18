@@ -54,7 +54,11 @@ function chooseRoute(
 function buildReasons(route: ClaimRoute, input: RecommendInput): string[] {
   const reasons: string[] = [];
   const clauseId = input.coverage.matchedClauses[0]?.clauseId ?? 'the property-damage clause';
-  reasons.push(`Coverage confirmed via clause ${clauseId}.`);
+  reasons.push(
+    input.coverage.covered
+      ? `Coverage confirmed via clause ${clauseId}.`
+      : `Coverage could not be confirmed from clause ${clauseId}.`,
+  );
   reasons.push(`Evidence completeness is ${input.completeness.score}%.`);
   reasons.push(
     input.consistency.contradictions === 0
@@ -75,7 +79,7 @@ function buildReasons(route: ClaimRoute, input: RecommendInput): string[] {
       'One or more fast-track thresholds were not met, so a human review is recommended.',
     );
   } else {
-    reasons.push('A contradiction or unusual pattern requires investigation before any decision.');
+    reasons.push('One or more trust signals require investigation before any decision.');
   }
   return reasons;
 }

@@ -7,7 +7,11 @@ import { z } from 'zod';
 
 /** Parse the strings "true" / "false" (and real booleans) into a boolean. */
 const booleanFromString = z.preprocess((value) => {
-  if (typeof value === 'string') return value.trim().toLowerCase() === 'true';
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+  }
   return value;
 }, z.boolean());
 
@@ -15,27 +19,40 @@ const booleanFromString = z.preprocess((value) => {
  * The full set of environment variables the system understands, with safe local
  * defaults so the stack boots without a .env file during development.
  */
-const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+const envSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 
-  // Demo mode uses deterministic mock adapters and seeded data. Keep it on until
-  // real providers are wired, and use it to guarantee an offline-safe demo.
-  DEMO_MODE: booleanFromString.default(true),
+    // Demo mode uses deterministic mock adapters and seeded data. Keep it on until
+    // real providers are wired, and use it to guarantee an offline-safe demo.
+    DEMO_MODE: booleanFromString.default(true),
+    // Temporary deployment guard for adjuster actions until an identity provider
+    // is integrated. It is required whenever demo mode is disabled.
+    ADJUSTER_TOKEN: z.string().min(16).optional(),
 
-  GATEWAY_PORT: z.coerce.number().int().positive().default(4000),
-  INTAKE_PORT: z.coerce.number().int().positive().default(4001),
-  EVIDENCE_PORT: z.coerce.number().int().positive().default(4002),
-  CLAIMS_PORT: z.coerce.number().int().positive().default(4003),
-  GRAPH_PORT: z.coerce.number().int().positive().default(4004),
-  NOTIFY_PORT: z.coerce.number().int().positive().default(4005),
+    GATEWAY_PORT: z.coerce.number().int().positive().default(4000),
+    INTAKE_PORT: z.coerce.number().int().positive().default(4001),
+    EVIDENCE_PORT: z.coerce.number().int().positive().default(4002),
+    CLAIMS_PORT: z.coerce.number().int().positive().default(4003),
+    GRAPH_PORT: z.coerce.number().int().positive().default(4004),
+    NOTIFY_PORT: z.coerce.number().int().positive().default(4005),
 
-  INTAKE_URL: z.string().url().default('http://localhost:4001'),
-  EVIDENCE_URL: z.string().url().default('http://localhost:4002'),
-  CLAIMS_URL: z.string().url().default('http://localhost:4003'),
-  GRAPH_URL: z.string().url().default('http://localhost:4004'),
-  NOTIFY_URL: z.string().url().default('http://localhost:4005'),
-});
+    INTAKE_URL: z.string().url().default('http://localhost:4001'),
+    EVIDENCE_URL: z.string().url().default('http://localhost:4002'),
+    CLAIMS_URL: z.string().url().default('http://localhost:4003'),
+    GRAPH_URL: z.string().url().default('http://localhost:4004'),
+    NOTIFY_URL: z.string().url().default('http://localhost:4005'),
+  })
+  .superRefine((value, context) => {
+    if (!value.DEMO_MODE && !value.ADJUSTER_TOKEN) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ADJUSTER_TOKEN'],
+        message: 'ADJUSTER_TOKEN is required when DEMO_MODE is false',
+      });
+    }
+  });
 
 export type Env = z.infer<typeof envSchema>;
 
