@@ -107,12 +107,19 @@ the missing language switcher. Both option-group labels now use
 `role="group"` + `aria-labelledby` instead of a floating `<label>`, and every
 interactive element has an explicit `:focus-visible` style.
 
-### B-8 One real provider adapter behind a flag
+### B-8 One real provider adapter behind a flag - done, see D-0028
 
-Implement one hosted adapter (speech is the most demo-visible) selected by env
-config, with DEMO_MODE staying the offline default. Central model and prompt
-config goes in `packages/config` (improvements P3.10). Do not let the demo
-path depend on it.
+Implemented as real Gemini narrative extraction in `services/intake`
+(collision direction, location, plate), not literal speech-to-text: there is
+no real audio anywhere in the repo today, only typed narrative text, so a
+real language-understanding call on that text is the adapter that could
+actually add value now. Selected by `GEMINI_API_KEY` and `DEMO_MODE` in
+`packages/config`, with `DEMO_MODE` staying the offline default; the mock
+extractor is byte-identical to the pipeline's prior regex-based behavior.
+
+Vision/OCR and claims coverage grounding stay mock-only: there is no real
+image or document in `data/` to point a real vision call at yet (a follow-up,
+not started).
 
 ## Bonus features (outside the P0-P2 list above)
 

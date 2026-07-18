@@ -31,6 +31,11 @@ const envSchema = z
     // is integrated. It is required whenever demo mode is disabled.
     ADJUSTER_TOKEN: z.string().min(16).optional(),
 
+    // Real Gemini calls back intake's narrative extraction once demo mode is
+    // off. Optional in demo mode, where the deterministic mock is used instead.
+    GEMINI_API_KEY: z.string().min(1).optional(),
+    GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+
     GATEWAY_PORT: z.coerce.number().int().positive().default(4000),
     INTAKE_PORT: z.coerce.number().int().positive().default(4001),
     EVIDENCE_PORT: z.coerce.number().int().positive().default(4002),
@@ -55,6 +60,13 @@ const envSchema = z
         code: z.ZodIssueCode.custom,
         path: ['ADJUSTER_TOKEN'],
         message: 'ADJUSTER_TOKEN is required when DEMO_MODE is false',
+      });
+    }
+    if (!value.DEMO_MODE && !value.GEMINI_API_KEY) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['GEMINI_API_KEY'],
+        message: 'GEMINI_API_KEY is required when DEMO_MODE is false',
       });
     }
   });

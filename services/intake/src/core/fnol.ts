@@ -1,58 +1,28 @@
 /**
  * Turn a transcript and the customer's guided answers into structured first
  * notice of loss fields: the actors and vehicles, the timeline, and the
- * collision direction. Deterministic and dependency-free so it is easy to test.
+ * collision direction. The collision direction, location, and plate come from
+ * a `NarrativeExtractor` (mock or real), kept behind that seam so this module
+ * stays a pure, easy-to-test assembly step.
  */
 import {
   type EventTimeline,
   type Fnol,
-  type ImpactArea,
   type IntakeRequest,
   type StructuredFacts,
   makeConfidence,
 } from '@sinistria/contracts';
+import type { ExtractedNarrative, NarrativeExtractor } from '../adapters/extractor.js';
 import type { Transcript } from '../adapters/speech.js';
-
-/** Ordered so that more specific phrases (rear left) win over general ones (rear). */
-const DIRECTION_PATTERNS: ReadonlyArray<[RegExp, ImpactArea]> = [
-  [/\b(arriere|arrière|rear|wara)\s*(gauche|left|yasar)\b/i, 'rear_left'],
-  [/\b(arriere|arrière|rear|wara)\s*(droit|droite|right|ymin)\b/i, 'rear_right'],
-  [/\b(avant|front|9odd?am|koddam)\s*(gauche|left|yasar)\b/i, 'front_left'],
-  [/\b(avant|front|9odd?am|koddam)\s*(droit|droite|right|ymin)\b/i, 'front_right'],
-  [/\b(arriere|arrière|rear|wara)\b/i, 'rear'],
-  [/\b(avant|front|9odd?am|koddam)\b/i, 'front'],
-  [/\b(gauche|left|yasar)\b/i, 'left'],
-  [/\b(droit|droite|right|ymin)\b/i, 'right'],
-];
-
-/** Detect the collision direction from free text, or return 'unknown'. */
-export function detectCollisionDirection(text: string): ImpactArea {
-  for (const [pattern, area] of DIRECTION_PATTERNS) {
-    if (pattern.test(text)) return area;
-  }
-  return 'unknown';
-}
-
-/** A Tunisian-style plate such as "125 TUN 4587", if the narrative mentions one. */
-export function detectPlate(text: string): string | null {
-  const match = text.match(/\b\d{2,4}\s?(?:tun|tu|tn)\s?\d{1,4}\b/i);
-  return match ? match[0].toUpperCase().replace(/\s+/g, ' ') : null;
-}
-
-/** A rough location phrase from the narrative, or null if none is recognizable. */
-export function detectLocation(text: string): string | null {
-  const match = text.match(/\b(feu rouge|rond[- ]point|autoroute|avenue|rue|carrefour)\b[^.,;]*/i);
-  return match ? match[0].trim() : null;
-}
 
 /**
  * Build the structured facts. The collision direction from the customer's guided
- * answer takes priority over what we infer from the narrative.
+ * answer takes priority over what the extractor infers from the narrative.
  */
-function buildStructuredFacts(transcript: Transcript): StructuredFacts {
-  const plate = detectPlate(transcript.text);
-  const location = detectLocation(transcript.text);
-
+function buildStructuredFacts(
+  transcript: Transcript,
+  extracted: ExtractedNarrative,
+): StructuredFacts {
   return {
     claimantStatement: {
       value: transcript.text,
@@ -66,13 +36,13 @@ function buildStructuredFacts(transcript: Transcript): StructuredFacts {
       confidence: makeConfidence(0.8),
     },
     location: {
-      value: location ?? 'Unknown',
+      value: extracted.location ?? 'Unknown',
       source: 'derived',
-      confidence: makeConfidence(location ? 0.7 : 0.3),
+      confidence: makeConfidence(extracted.location ? 0.7 : 0.3),
     },
     vehicles: [
       {
-        plate: plate ?? 'UNKNOWN',
+        plate: extracted.plate ?? 'UNKNOWN',
         isClaimant: true,
       },
     ],
@@ -80,13 +50,17 @@ function buildStructuredFacts(transcript: Transcript): StructuredFacts {
 }
 
 /** Build the event timeline, preferring the guided answer for collision direction. */
-function buildTimeline(transcript: Transcript, request: IntakeRequest): EventTimeline {
-  const direction = request.collisionDirection ?? detectCollisionDirection(transcript.text);
+function buildTimeline(
+  transcript: Transcript,
+  request: IntakeRequest,
+  extracted: ExtractedNarrative,
+): EventTimeline {
+  const direction = request.collisionDirection ?? extracted.collisionDirection;
   const directionConfidence = request.collisionDirection
     ? 0.9
     : direction === 'unknown'
       ? 0.3
-      : 0.7;
+      : extracted.confidence;
 
   return {
     summary: {
@@ -107,10 +81,15 @@ function buildTimeline(transcript: Transcript, request: IntakeRequest): EventTim
   };
 }
 
-/** Assemble the full FNOL from a transcript and the intake request. */
-export function structureFnol(transcript: Transcript, request: IntakeRequest): Fnol {
+/** Assemble the full FNOL from a transcript, the intake request, and the extractor. */
+export async function structureFnol(
+  transcript: Transcript,
+  request: IntakeRequest,
+  extractor: NarrativeExtractor,
+): Promise<Fnol> {
+  const extracted = await extractor.extract(transcript.text, request.locale);
   return {
-    structuredFacts: buildStructuredFacts(transcript),
-    timeline: buildTimeline(transcript, request),
+    structuredFacts: buildStructuredFacts(transcript, extracted),
+    timeline: buildTimeline(transcript, request, extracted),
   };
 }
