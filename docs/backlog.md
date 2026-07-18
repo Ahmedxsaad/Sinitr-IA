@@ -97,10 +97,15 @@ confidence had no badge anywhere, both fixed by the shared components.
 
 ## P2 - stretch
 
-### B-7 Arabic RTL and accessibility (improvements P3.9)
+### B-7 Arabic RTL and accessibility (improvements P3.9) - done, see D-0019
 
 `dir="rtl"` for the Arabic locale in the mobile journey, screen-reader labels,
 and focus states.
+
+Arabic was unreachable from the UI (locale was hardcoded), so this also added
+the missing language switcher. Both option-group labels now use
+`role="group"` + `aria-labelledby` instead of a floating `<label>`, and every
+interactive element has an explicit `:focus-visible` style.
 
 ### B-8 One real provider adapter behind a flag
 
