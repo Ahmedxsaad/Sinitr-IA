@@ -394,3 +394,47 @@ Template:
      with `infra/compose/docker-compose.yml` supplying it via `build.args`.
      `infra/docker/.gitkeep` and `infra/compose/.gitkeep` were removed now that
      both directories hold real files.
+
+## D-0017 - Gateway seeds the demo queue in the background after its own health is up
+
+- Date: 2026-07-18
+- Context: The backlog (B-5) asked for a realistic cockpit queue at boot in
+  demo mode instead of an empty one, so a demo does not depend on someone
+  submitting the first live claim on stage. Built on a separate branch from
+  B-4 (Docker orchestration), so numbered D-0017 to avoid colliding with
+  D-0016 once both merge (the same pattern D-0014 used against D-0013).
+  `runClaimPipeline` already depends only on the `ServiceClients` interface
+  (D-0005), and the gateway's own routes already call it over real HTTP
+  clients (`createHttpClients`), never over the service's own internals.
+- Options: (a) have the gateway `fetch` its own `POST /api/claims` endpoint
+  once per manifest claim at boot, (b) call `runClaimPipeline` directly with
+  the gateway's existing HTTP clients during startup, writing straight into
+  the claim store, no self-call to the gateway's own API, (c) seed the store
+  with hand-built Twins instead of running the real pipeline.
+- Decision: (b). A new `services/gateway/src/core/seed.ts` exports
+  `seedDemoQueue(clients, logger)`: it waits for intake, evidence, graph, and
+  claims to answer their own `/health` (bounded polling, not a fixed sleep,
+  since local `pnpm dev` starts all six processes concurrently with no
+  ordering guarantee), then runs every `data/manifest.json` claim through
+  `runClaimPipeline` with a stable id (`CLM-DEMO-<ID>`) and saves each Twin
+  into the existing `claimStore`. `server.ts` calls it only after `start()`
+  resolves and only when `DEMO_MODE` is on, without awaiting it, so the
+  gateway's own `/health` is never delayed or put at risk by a slow or
+  unreachable dependency. `routes/claims.ts` no longer constructs its own
+  `ServiceClients`; `server.ts` builds one instance and passes it to both the
+  routes and the seeder.
+- Reason: Option (a) is what the backlog explicitly ruled out ("no HTTP
+  self-calls"): a self-call adds a network hop for no benefit and couples the
+  gateway's own boot sequence to its own route handling. Option (c) would
+  drift from the real pipeline the moment either changes. Not awaiting the
+  seed keeps the gateway's health endpoint, which docker compose and
+  `scripts/smoke.sh` both depend on, honest and immediate regardless of demo
+  seeding.
+- Result: Verified against the hardest ordering case, not just docker
+  compose's dependency-gated one: starting all six services concurrently
+  (mirroring `scripts/smoke.sh`'s own pattern) still answers gateway `/health`
+  immediately, and `GET /api/claims` reaches all 10 manifest claims within
+  seconds, each with its manifest-documented state and route. The unmodified
+  `scripts/smoke.sh` still passes unchanged (it submits its own honest claim
+  under a fresh id alongside the ten seeded ones). Full verification
+  (typecheck, lint, format, 134 tests, both app builds) is clean.
