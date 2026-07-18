@@ -88,7 +88,8 @@ export default function QueuePage() {
     <main className="page">
       <h1>Claims queue</h1>
       <p className="muted">
-        Claims arrive from the mobile journey. Open one to review its Evidence Twin.
+        Claims arrive from the mobile journey. Open one to review its Evidence Twin.{' '}
+        <a href="/signals">View situational signals</a>.
       </p>
 
       {metrics && <MetricsStrip metrics={metrics} />}

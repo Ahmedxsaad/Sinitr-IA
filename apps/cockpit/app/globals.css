@@ -214,6 +214,53 @@ button.secondary {
   color: var(--muted);
 }
 
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.criticality {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.criticality.critical {
+  background: rgba(181, 72, 47, 0.15);
+  color: var(--red);
+}
+
+.criticality.high {
+  background: rgba(201, 130, 47, 0.18);
+  color: var(--amber);
+}
+
+.criticality.medium {
+  background: rgba(201, 130, 47, 0.12);
+  color: var(--amber);
+}
+
+.criticality.low {
+  background: rgba(31, 157, 107, 0.12);
+  color: var(--green-700);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: 4px;
+}
+
 .chip {
   display: inline-block;
   padding: 2px 8px;

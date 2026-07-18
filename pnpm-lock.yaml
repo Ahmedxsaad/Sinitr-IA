@@ -309,6 +309,34 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@22.20.1)
 
+  services/signals:
+    dependencies:
+      '@sinistria/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@sinistria/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@sinistria/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@sinistria/service-kit':
+        specifier: workspace:*
+        version: link:../../packages/service-kit
+      fastify:
+        specifier: ^5.2.0
+        version: 5.10.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.1
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.1)
+
   tests/e2e:
     devDependencies:
       '@sinistria/claims':

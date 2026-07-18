@@ -1,0 +1,29 @@
+{
+  "region": "tunisia",
+  "items": [
+    {
+      "title": "Flash floods submerge roads across Nabeul after record rainfall",
+      "description": "Several main roads and the coastal highway are impassable after heavy overnight rain. Authorities report dozens of stranded vehicles and widespread water damage to parked cars.",
+      "url": "https://example.com/tn/nabeul-floods",
+      "publishedAt": "2026-07-17T06:20:00Z"
+    },
+    {
+      "title": "Multi-vehicle collision closes the A1 motorway near Msaken",
+      "description": "A pile-up involving several cars and a lorry has closed the northbound A1 near Msaken. Traffic is being diverted; recovery is under way.",
+      "url": "https://example.com/tn/a1-collision",
+      "publishedAt": "2026-07-18T07:45:00Z"
+    },
+    {
+      "title": "Transport union announces one-day strike affecting Grand Tunis",
+      "description": "Public transport across Grand Tunis will be disrupted on Thursday as the union stages a one-day stoppage over pay.",
+      "url": "https://example.com/tn/transport-strike",
+      "publishedAt": "2026-07-16T15:10:00Z"
+    },
+    {
+      "title": "Ministry of Culture announces summer festival programme",
+      "description": "The annual international festival returns with concerts and film screenings across several cities through August.",
+      "url": "https://example.com/tn/festival-programme",
+      "publishedAt": "2026-07-15T11:00:00Z"
+    }
+  ]
+}
