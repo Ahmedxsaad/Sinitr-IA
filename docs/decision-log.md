@@ -699,3 +699,33 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   than a one-off className. Verified with a headless-browser screenshot of the
   live page; the badges glow the correct color with the same lit-dot marker as
   every other badge in the app.
+## D-0022 - Replace the placeholder brand mark with the designed logo
+
+- Date: 2026-07-18
+- Context: `packages/ui`'s `BrandMark` and both apps' favicons used a
+  hand-drawn placeholder (a plain almond outline with a solid pupil),
+  built as a stand-in while the redesign (D-0020) was in progress. A
+  designed logo (an eye built from overlapping camera-aperture blades,
+  reading as both "witness" and "capture") was produced externally and
+  supplied as a raster image on a solid dark ground.
+- Options: (a) keep the hand-drawn placeholder mark, (b) vectorize the
+  supplied artwork, (c) use the supplied raster image directly, with its
+  background keyed to transparent so it drops onto any surface.
+- Decision: (c). The flat near-black background was removed with
+  ImageMagick color-keying (`-fuzz 8% -transparent`), producing a clean
+  cutout with no fringing, then resized for each use: `BrandMark` embeds a
+  160px version as a base64 data URI (self-contained in the shared
+  package, no per-app `public/` file needed), and both apps'
+  `app/icon.png` use a 256px version. Vectorizing (b) risked losing the
+  gradient's smoothness and was unnecessary once the cutout worked
+  cleanly at every size actually used.
+- Reason: The mark is only ever rendered at 16 to 96px in this product (app
+  header, browser tab); a raster cutout at those sizes is indistinguishable
+  from a vector one and is far less work than re-drawing the artwork as
+  paths. Embedding rather than referencing a public file keeps `BrandMark`
+  a true drop-in shared component, matching how `tokens.css` is consumed.
+- Result: Verified in a real browser at 16px, 32px, and the app header's
+  26px: the eye silhouette reads clearly at every size, the fine
+  inner-iris crossing lines soften into the center at 16px but do not
+  break the shape. `pnpm typecheck`, `lint`, `format:check`, `test`, and
+  `build` all pass.
