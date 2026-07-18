@@ -34,5 +34,6 @@ Purpose: ground the claim in policy, apply trust gates, and recommend a route.
 
 ## Changelog
 
-- 2026-07-18 00:47 CET - Claude (Opus 4.8) for @Ahmedxsaad - Created part
+- 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
+- 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented policy grounding, trust gates, and the routed recommendation.

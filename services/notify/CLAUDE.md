@@ -30,5 +30,6 @@ Purpose: tell the customer what happened after the adjuster acts.
 
 ## Changelog
 
-- 2026-07-18 00:47 CET - Claude (Opus 4.8) for @Ahmedxsaad - Created part
+- 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
+- 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the SMS mock and notification sending.
