@@ -4,6 +4,7 @@
  * exact same shape, which keeps the dataset and the runtime from drifting.
  */
 import { z } from 'zod';
+import { claimRouteSchema, claimStateSchema } from './enums.js';
 import { policyClauseSchema } from './twin.js';
 
 /**
@@ -41,6 +42,12 @@ export const fixtureManifestSchema = z.object({
         id: z.string().min(1),
         path: z.string().min(1),
         description: z.string().min(1),
+        // The state and route the pipeline must produce for this claim. Pinning
+        // both here, not just in a golden Twin, lets the validator prove every
+        // fixture in the dataset behaves as documented, not only the two hero
+        // cases that get a full golden comparison.
+        expectedState: claimStateSchema,
+        expectedRoute: claimRouteSchema,
       }),
     )
     .min(1),

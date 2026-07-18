@@ -1,0 +1,13 @@
+{
+  "locale": "fr",
+  "narrative": "Choc violent a l'avant du vehicule au niveau du rond point, degats importants. Plaque 300 TUN 1122.",
+  "injuryReported": false,
+  "collisionDirection": "front",
+  "contact": { "phone": "+21620000106" },
+  "confirmed": true,
+  "mediaRefs": [
+    "seed:severe:vision:front:severe",
+    "seed:severe:doc:constat:standard",
+    "seed:severe:doc:invoice:body_panel"
+  ]
+}
