@@ -8,7 +8,7 @@ relevant changelog and, for non-obvious choices, [decision-log.md](decision-log.
 
 ## P0 - demo critical
 
-### B-1 Expand the demo dataset to 10 claims
+### B-1 Expand the demo dataset to 10 claims - done, see D-0013
 
 Add 8 synthetic claims to `data/claims` alongside the 2 hero cases, register
 them in `data/manifest.json`, and extend the manifest validator to run each
