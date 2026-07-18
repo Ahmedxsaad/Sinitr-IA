@@ -50,5 +50,13 @@ data/**/local/
 # against personal names/images in shared files)
 teammates/
 
+# Local AI-agent guidance (kept on disk for local development, never tracked
+# or committed; see decision-log.md for why these were removed from history)
+/CLAUDE.md
+/AGENT.md
+**/CLAUDE.md
+**/AGENT.md
+.claude/
+
 # Claude Code: commit shared project settings, keep personal overrides local
 .claude/settings.local.json
