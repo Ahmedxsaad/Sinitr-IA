@@ -72,7 +72,7 @@ part depends on.
 
 - apps: `mobile`, `cockpit`
 - services: `gateway`, `intake`, `evidence`, `claims`, `graph`, `notify`
-- packages: `contracts`, `config`, `logger`, `ui`
+- packages: `contracts`, `config`, `logger`, `service-kit`, `ui`
 
 ## Product guardrails (never break)
 
@@ -85,5 +85,6 @@ part depends on.
 
 ## Changelog
 
-- 2026-07-18 00:47 CET - Claude (Opus 4.8) for @Ahmedxsaad - Created root
+- 2026-07-18 00:47 CET - @Ahmedxsaad - Created root
   guidance, documentation set, and microservices skeleton.
+- 2026-07-18 02:13 CET - @Ahmedxsaad - Scaffolded the vertical slice: workspace tooling, contracts, six services, gateway pipeline, two apps, e2e and smoke tests. Verified end to end.

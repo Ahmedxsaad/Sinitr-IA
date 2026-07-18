@@ -13,7 +13,7 @@ A microservices monorepo (pnpm workspaces). Two frontends, six backend
 services, and shared libraries. See [docs/plan.md](docs/plan.md) for the plan
 and [docs/architecture.md](docs/architecture.md) for how it fits together.
 
-```
+```text
 apps/       user-facing frontends (mobile customer journey, adjuster cockpit)
 services/   independent backend services (gateway, intake, evidence, claims, graph, notify)
 packages/   shared libraries (contracts, config, logger, ui)
@@ -22,6 +22,26 @@ data/       synthetic demo data (claims, policies, media, graph)
 docs/       plan, architecture, conventions, decision log, improvements
 scripts/    developer and setup scripts
 ```
+
+## Getting started
+
+Requirements: Node 20 or newer and pnpm. Then:
+
+```bash
+pnpm install            # install all workspace dependencies
+pnpm dev                # run every service and both apps in watch mode
+pnpm typecheck          # typecheck every package
+pnpm test               # run unit and end-to-end tests
+bash scripts/smoke.sh   # live HTTP smoke test of the honest-claim flow
+```
+
+Local ports: gateway 4000, intake 4001, evidence 4002, claims 4003, graph 4004,
+notify 4005, mobile app 3000, cockpit app 3001. Copy `.env.example` to
+`.env.local` to override. Demo mode (deterministic mock adapters, no external
+calls) is on by default.
+
+Try it: open the mobile app, press "Load demo case", submit, then open the
+cockpit to review the Evidence Twin and approve.
 
 ## Documentation
 
@@ -34,6 +54,7 @@ scripts/    developer and setup scripts
 
 ## Status
 
-Structure, documentation, and governance are in place. Application code is not
-scaffolded yet; the stack is confirmed but each part is still a skeleton. See
-the plan before adding code.
+The vertical slice is live and verified. An honest claim flows from the mobile
+journey through all six services to a fast-track recommendation in the cockpit,
+and approval sends the customer notification. AI is mocked behind interfaces
+(swap real providers later). Next: real provider adapters and richer demo cases.
