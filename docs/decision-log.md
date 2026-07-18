@@ -729,3 +729,107 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   inner-iris crossing lines soften into the center at 16px but do not
   break the shape. `pnpm typecheck`, `lint`, `format:check`, `test`, and
   `build` all pass.
+
+## D-0023 - Brand kit and data room export to PDF via Playwright, not pandoc
+
+- Date: 2026-07-18
+- Context: The hackathon submission needs the brand kit and the data room as
+  standalone PDFs, on brand, for reviewers who will not clone the repo.
+  `pandoc` is not installed on this machine; `python3-markdown` is.
+- Options: (a) install pandoc for a direct markdown-to-PDF path, (b) convert
+  each markdown source to HTML with `python-markdown`, wrap it in the same
+  brand tokens and embedded fonts already built for the diagrams (D-0021)
+  and the on-screen brand kit, then print to PDF with Playwright's
+  `page.pdf()`.
+- Decision: (b). Two small build scripts (not committed; generated
+  artifacts only) produce a self-contained HTML page per document, with
+  print-specific CSS (`break-inside: avoid`, `break-after: avoid` on
+  headings) for clean pagination, then a Playwright script renders each to
+  PDF at A4 with backgrounds enabled.
+- Reason: Installing a new system tool needs the user's explicit choice
+  per this repo's tooling rule; the HTML route reuses fonts, tokens, and
+  diagrams already built for the brand, so the PDFs match the product's
+  actual visual identity instead of a generic markdown stylesheet.
+- Result: `Sinistria-Brand-Kit.pdf` (3 pages) and `Sinistria-Data-Room.pdf`
+  (4 pages, both diagrams embedded), each verified by converting every page
+  to PNG and inspecting it directly. Kept out of the repository; these are
+  generated submission artifacts, not source.
+
+## D-0024 - Concept note cites public market data, and the BMC states it is a working draft
+
+- Date: 2026-07-18
+- Context: The submission checklist asks for an updated concept note with a
+  Business Model Canvas. This repo has no measured pricing, market size, or
+  partnership data of its own to draw on.
+- Options: (a) draft plausible-sounding figures for pricing and market size
+  without sourcing them, (b) search for and cite real public data (Tunisia's
+  insurance-sector reporting, published AI-claims-automation benchmarks,
+  MENA insurtech funding rounds) for every market claim, and mark the BMC's
+  own pricing and channel choices explicitly as a pilot-stage draft, not a
+  commitment.
+- Decision: (b). `docs/concept-note.md` links every market figure inline to
+  its public source and states outright that BMC pricing and channels are
+  hypotheses to validate in a pilot.
+- Reason: Fabricated business figures in submission material the project
+  would be judged on is exactly the kind of misleading claim this repo's
+  established "honest-but-confident" framing (see the prototype and demo
+  materials, this same section of work) rules out; real, sourced numbers
+  are stronger evidence than invented ones and survive scrutiny.
+- Result: `docs/concept-note.md` added, linked from `README.md`. Six
+  sources cited (Atlas Mag x2, an academic paper on AI in Tunisian
+  insurance, Bain & Company, RaftLabs, fintech.global, insnerds.com).
+
+## D-0025 - Pitch deck built as a native PPTX, not a flattened PDF export
+
+- Date: 2026-07-18
+- Context: The submission needs a pitch deck. The brand kit and data
+  room PDFs (D-0023) were built by printing a styled HTML page, which
+  gives full design control but produces a flat, non-editable document;
+  a deck is more likely to need last-minute edits before a live pitch.
+- Options: (a) build the deck the same way as the other PDFs (HTML to
+  PDF via Playwright), (b) generate a real `.pptx` with `python-pptx`
+  so every slide stays editable in PowerPoint or LibreOffice.
+- Decision: (b). `python-pptx` was not installed; per this repo's
+  tooling rule (check before you use, do not auto-install without
+  asking) the user was asked, chose to install it, and it was installed
+  into a throwaway virtualenv under the scratchpad, not system-wide,
+  since the machine's Python is externally managed (Arch). The deck's
+  diagrams and product screenshots are still the same brand-styled SVGs
+  and live-app captures used elsewhere; the two SVG diagrams were
+  rasterized to PNG first since `python-pptx` has no native SVG support.
+- Reason: A hackathon deck gets last-minute wording and ordering changes
+  more often than a data room or brand kit does; native shapes and text
+  boxes survive that, a flattened PDF does not. The venv keeps the
+  install fully reversible and off the system Python.
+- Result: `Sinistria-Pitch-Deck.pptx` (12 slides), verified by
+  converting it to PDF with LibreOffice (already present on this
+  machine) and inspecting every slide as a rendered image. An HTML/PDF
+  version of the same deck was also kept for quick web viewing.
+
+## D-0026 - Demo video assembled from real Playwright recordings, not a mockup
+
+- Date: 2026-07-18
+- Context: The submission checklist asks for a 2-minute demo video. A
+  shot-by-shot script already existed (`docs/demo-video-script.md`).
+- Options: (a) hand-wave a description of the flow without a real
+  capture, (b) record the actual running apps with Playwright's built-in
+  video recording, then burn in captions with `ffmpeg` timed against the
+  real, observed transitions.
+- Decision: (b). Two silent screen recordings (mobile: idle to honest
+  fast-track to suspicious investigate; cockpit: queue to graph reveal
+  to approve) were captured at 1280x720 with Playwright's
+  `recordVideo`, against the live dev stack. Caption timing was derived
+  by sampling the raw recordings frame-by-frame (not the idealized
+  script timings), since the real UI's animation and API-response
+  timing differs from any estimate. Title/closing cards reuse the
+  pitch deck's own cover and closing slides for visual consistency.
+- Reason: A demo video's entire value is proof the thing actually runs;
+  a mockup would misrepresent completed work as still-imagined, which
+  this repo's own honesty conventions already rule out for other
+  materials (see D-0024). Sampling the real recording for caption
+  timing avoids captions drifting out of sync with what's on screen,
+  which reads as sloppier than no captions at all.
+- Result: `Sinistria-Demo-Video.mp4` (58.8s, 1280x720, silent with
+  burned-in captions), verified by extracting frames at each caption
+  boundary and confirming no overlapping captions and no caption
+  mismatched with the visible screen state.

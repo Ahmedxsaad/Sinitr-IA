@@ -37,8 +37,28 @@ pnpm test               # run unit and end-to-end tests
 Local ports: gateway 4000, intake 4001, evidence 4002, claims 4003, graph 4004,
 notify 4005, mobile app 3000, cockpit app 3001.
 
-Try it: open the mobile app, press "Load demo case", submit, then open the
-cockpit to review the Evidence Twin and approve.
+## Try the prototype
+
+No test account is needed: `DEMO_MODE` (the default) skips cockpit login
+entirely, so a reviewer can open both apps and go straight to the flows
+below. Real adjuster auth (`ADJUSTER_TOKEN`) is there and guards the cockpit
+routes the moment `DEMO_MODE=false`, see [Configuration](#configuration).
+
+1. Open the mobile app (`localhost:3000` or the Docker URL) and press
+   "Load demo case". Submit through voice capture; the claim fast-tracks.
+2. Reload the page, press "Load suspicious demo" instead, and submit it.
+   It routes to investigate, with the reason shown, not just a score.
+3. Open the cockpit (`localhost:3001` or `:3001` on Docker) and find both
+   claims already in the queue (seeded on boot, see
+   [decision-log.md](docs/decision-log.md) D-0017). Open the suspicious one
+   to see its relationship graph reveal, then open the honest one and
+   approve it, this sends the customer notification.
+
+Every AI adapter (speech, vision, language) and the claim store sit behind
+a stable interface designed to swap in a real hosted provider and a
+persistent database (see [docs/architecture.md](docs/architecture.md)
+section 8); the demo runs them deterministically so the walkthrough above
+never depends on a live network call or a seeded account.
 
 ## Run with Docker
 
@@ -99,6 +119,10 @@ schema. See [data/README.md](data/README.md).
   verification results, findings, and deployment controls.
 - [docs/data-room.md](docs/data-room.md) - architecture, data description,
   tech stack, and test plan in one reference.
+- [docs/concept-note.md](docs/concept-note.md) - the business case: problem,
+  market, and a Business Model Canvas.
+- [docs/demo-video-script.md](docs/demo-video-script.md) - the shot-by-shot
+  script for the 2-minute submission video.
 - [CLAUDE.md](CLAUDE.md) - rules for AI agents and contributors.
 
 ## Status
