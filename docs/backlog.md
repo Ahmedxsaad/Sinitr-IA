@@ -31,13 +31,17 @@ Every media seed ref used must be added to the manifest media list. Add an
 `expectedState` and `expectedRoute` field per claim in the manifest so the
 validator drives itself from data.
 
-### B-2 Live metrics (improvements P2.6)
+### B-2 Live metrics (improvements P2.6) - done, see D-0014
 
 Emit `time_to_fnol_ms`, `evidence_completeness`, and per-route counts from the
 gateway pipeline into an in-memory metrics store (same seam pattern as the
 claim store, D-0007). Expose `GET /api/metrics` on the gateway and render a
 small metrics strip in the cockpit queue page. Label values "measured on the
 demo set" per the language rules in [conventions.md](conventions.md).
+
+Implemented as `computeMetrics`, a pure aggregation over the existing claim
+store, rather than a separate mutable metrics store: the Twin's audit trail
+already carries everything needed, and a second store risked drifting from it.
 
 ### B-3 Graph reveal for the suspicious case
 

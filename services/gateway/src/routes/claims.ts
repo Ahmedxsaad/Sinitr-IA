@@ -4,27 +4,16 @@
  * and reads or updates the in-memory demo store.
  */
 import { randomUUID } from 'node:crypto';
-import { getConfig } from '@sinistria/config';
 import { adjusterDecisionRequestSchema, createClaimRequestSchema } from '@sinistria/contracts';
 import { newCorrelationId } from '@sinistria/logger';
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
+import { isAuthorizedAdjuster } from '../core/authz.js';
 import { createHttpClients } from '../core/clients.js';
 import { applyDecision } from '../core/decision.js';
 import { runClaimPipeline } from '../core/pipeline.js';
 import { claimStore } from '../core/store.js';
 
 const clients = createHttpClients();
-
-/**
- * Protect adjuster-only operations until the identity-provider integration is
- * available. Demo mode intentionally stays open for the offline walkthrough.
- */
-function isAuthorizedAdjuster(request: FastifyRequest): boolean {
-  const config = getConfig();
-  if (config.DEMO_MODE) return true;
-  const authorization = request.headers.authorization;
-  return authorization === `Bearer ${config.ADJUSTER_TOKEN}`;
-}
 
 /** Generate a human-friendly claim id such as "CLM-2026-4F9A2C". */
 function newClaimId(): string {
