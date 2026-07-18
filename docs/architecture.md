@@ -33,6 +33,7 @@ sinistria/
     claims/        Policy grounding, trust gates, recommendation and route
     graph/         Relationship graph and anomaly flags
     notify/        SMS and status updates
+    signals/       Standalone situational feed, not part of the claim pipeline
   packages/
     contracts/     Accident Evidence Twin schema, DTOs, event types (shared)
     config/        Env parsing and validation, shared constants and thresholds
@@ -101,6 +102,17 @@ and an `AGENT.md` symlink to it. See [conventions.md](conventions.md).
 - `services/gateway`. The only entry point for the frontends. Routing, role
   based access (customer versus adjuster), request aggregation, and rate
   limiting. Holds no business logic.
+
+### Standalone (outside the claim pipeline)
+
+- `services/signals`. A situational-awareness feed: regional events (floods,
+  road incidents, outbreaks) classified with a criticality label and the motor
+  concerns they may touch, for adjuster context only. Reached by the gateway's
+  additive `GET /api/signals` read-through and shown on its own cockpit page
+  (`/signals`). Never called from `runClaimPipeline`, never reads or writes an
+  Accident Evidence Twin, and shares no code with the graph service. See
+  decision D-0022. Matching an event to a specific claim's time and place is a
+  deliberate follow-up, not built here (see [backlog.md](backlog.md)).
 
 ## 4. The Accident Evidence Twin
 

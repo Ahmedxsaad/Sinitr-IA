@@ -126,7 +126,8 @@
 }
 
 .badge-route-fast_track,
-.badge-confidence-high {
+.badge-confidence-high,
+.badge-criticality-low {
   background: rgba(52, 226, 160, 0.12);
   color: #7dffc8;
   border-color: rgba(52, 226, 160, 0.36);
@@ -134,7 +135,8 @@
 }
 
 .badge-route-review,
-.badge-confidence-medium {
+.badge-confidence-medium,
+.badge-criticality-medium {
   background: rgba(245, 180, 90, 0.12);
   color: #ffce88;
   border-color: rgba(245, 180, 90, 0.36);
@@ -142,7 +144,9 @@
 }
 
 .badge-route-investigate,
-.badge-confidence-low {
+.badge-confidence-low,
+.badge-criticality-high,
+.badge-criticality-critical {
   background: rgba(255, 111, 94, 0.12);
   color: #ff9f92;
   border-color: rgba(255, 111, 94, 0.36);

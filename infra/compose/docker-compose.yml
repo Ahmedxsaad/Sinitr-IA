@@ -74,6 +74,18 @@ services:
       <<: *backend-healthcheck
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4005/health']
 
+  signals:
+    build:
+      context: ../..
+      dockerfile: infra/docker/signals.Dockerfile
+    ports:
+      - '4006:4006'
+    environment:
+      <<: *backend-env
+    healthcheck:
+      <<: *backend-healthcheck
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:4006/health']
+
   gateway:
     build:
       context: ../..
@@ -87,6 +99,9 @@ services:
       CLAIMS_URL: http://claims:4003
       GRAPH_URL: http://graph:4004
       NOTIFY_URL: http://notify:4005
+      # Standalone service (D-0018): not in depends_on, since the gateway's
+      # own health must not depend on an optional, additive feed.
+      SIGNALS_URL: http://signals:4006
     depends_on:
       intake:
         condition: service_healthy

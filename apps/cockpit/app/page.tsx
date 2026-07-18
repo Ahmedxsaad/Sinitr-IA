@@ -160,7 +160,8 @@ export default function QueuePage() {
         Claims queue
       </h1>
       <p className="muted rise" style={riseDelay(0.06)}>
-        Claims arrive from the mobile journey. Open one to review its Evidence Twin.
+        Claims arrive from the mobile journey. Open one to review its Evidence Twin.{' '}
+        <a href="/signals">View situational signals</a>.
       </p>
 
       {metrics && <MetricsStrip metrics={metrics} />}

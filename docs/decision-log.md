@@ -619,6 +619,86 @@ undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
   in a real browser (Chromium via Playwright); no text clipping, all fonts
   render as embedded.
 
+## D-0022 - Situational signals: a standalone service, not a pipeline input
+
+- Date: 2026-07-18
+- Context: The maintainer had built a "critical news agent" for a prior
+  project (`bh_assurance/src/critical_news_agent.py`): it pulls Google News RSS
+  for Tunisia and Africa, sends every headline to an LLM (Groq) to classify
+  disasters, epidemics, and industrial accidents, and surfaces an
+  `urgency_score` and a `business_opportunity` for insurance executives. The
+  ask was to add "the news stuff" to Sinistr'IA as an extra feature without
+  touching the existing claim flow. Built on a separate branch from B-4
+  (Docker) and B-5 (seed queue), so numbered D-0022 to avoid colliding with
+  D-0016 through D-0021 once everything merges, the same pattern D-0014 used
+  against D-0013.
+- Options: (a) reuse the Python agent close to verbatim as a new Python
+  service, (b) port the real logic to TypeScript as a new standalone service
+  with no connection to the claim pipeline, (c) go further and use it to
+  corroborate a specific claim's time and place (a new evidence source feeding
+  the Twin's consistency checks), (d) skip it, it does not fit the product's
+  scope (single motor claim forensics, not portfolio-level news monitoring).
+- Decision: (b), confirmed with the maintainer. A new `services/signals`
+  ported to TypeScript, reached only through a new additive gateway route
+  (`GET /api/signals`, mirroring the `GET /api/metrics` read-through pattern
+  from D-0014) and a new standalone cockpit page (`/signals`). It is never
+  called from `runClaimPipeline`, never reads or writes an Accident Evidence
+  Twin, and shares no code path with `services/graph` or any other domain
+  service.
+- Reason: The maintainer explicitly wants the existing vertical slice
+  untouched, and a standalone service is additive by construction under this
+  architecture (services only ever communicate over HTTP contracts, D-0001).
+  TypeScript over Python keeps the one-toolchain rule (D-0002) intact and
+  avoids a second decision the maintainer did not ask for; Python stays
+  available later per D-0002 if a specific need arises. Two changes were also
+  made to the original design to fit the product's guardrails, which apply to
+  every surface in the cockpit, not only the claim flow: `urgency_score`
+  became a `criticality` label (`low | medium | high | critical`), because the
+  cockpit never shows a naked score; and `business_opportunity` was dropped,
+  because this product prepares evidence for a human decision, not sales
+  leads. Classification is deterministic keyword rules, not a live LLM call
+  (see `services/signals/src/core/classify.ts`), so the feature is
+  unit-testable and works with `DEMO_MODE=true` and no API key, matching how
+  every other adapter in this repo (speech, vision, OCR) defaults to an
+  offline mock. Option (c), corroborating a specific claim, is a real
+  possible next step, but it is a pipeline and Twin-schema change and a
+  separate scope decision the maintainer has not made yet; it is noted in
+  `docs/backlog.md` as a deliberate follow-up, not built here.
+- Result: New workspace member `@sinistria/signals` (port 4006), with its own
+  `CLAUDE.md`. `packages/contracts/src/signals.ts` defines the region,
+  criticality, relevance, raw-item, and event schemas. `data/signals/{tunisia,
+africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
+  8 unit tests for the classifier, including one that caught a real bug (a
+  `\bflood\b` pattern did not match "floods" or "flooding" before the
+  patterns were made inflection-tolerant). Full verification (typecheck,
+  lint, format, 142 tests, both app builds, the live smoke script unaffected)
+  is clean, and the feature was confirmed live: the gateway route, the direct
+  service route, and the cockpit page were all exercised against running
+  processes, including a headless-browser screenshot of the rendered page.
+  Signals was built on a branch parallel to D-0016 (Docker orchestration), so
+  `infra/docker` and `infra/compose/docker-compose.yml` did not yet know it
+  existed. Fixed when resolving the merge: added
+  `infra/docker/signals.Dockerfile` (identical pattern to notify's) and a
+  `signals` compose service on port 4006, wired into the gateway's
+  `SIGNALS_URL` but deliberately left out of the gateway's `depends_on`, since
+  an optional, additive feed must never block the gateway's own health.
+  Verified with a live `docker build` and `docker run`: the image builds,
+  `/health` answers, and `/signals?region=tunisia` returns 4 classified
+  events. Signals was also built parallel to D-0018 through D-0021 (shared
+  badges, mobile RTL, the cinematic redesign, and the architecture diagrams),
+  so the `/signals` page's original plain CSS (`--red`, `--amber`,
+  `--green-700`) no longer matched the redesign's renamed tokens
+  (`--sinistria-red`, and so on) and would have rendered every criticality
+  badge colorless. Fixed when resolving this merge: added
+  `badge-criticality-{low,medium,high,critical}` to
+  `packages/ui/src/tokens.css`, joining the existing color tiers
+  `badge-route-*` and `badge-confidence-*` share (green/amber/red, three tiers
+  for four criticality levels, high and critical both read as the same red),
+  plus a `CriticalityBadge` component so the signals page renders through the
+  same shared component pattern as `RouteBadge` and `ConfidenceBadge` rather
+  than a one-off className. Verified with a headless-browser screenshot of the
+  live page; the badges glow the correct color with the same lit-dot marker as
+  every other badge in the app.
 ## D-0022 - Replace the placeholder brand mark with the designed logo
 
 - Date: 2026-07-18
