@@ -7,3 +7,18 @@ Deployment and local orchestration.
 
 Offline first for the demo: hero media, policy excerpts, and graph data are
 cached locally so the core interaction stays live without venue internet.
+
+## Run the full stack
+
+From the repo root:
+
+```sh
+docker compose -f infra/compose/docker-compose.yml up --build
+```
+
+Brings up all six backend services (ports 4000-4005) and both frontends
+(mobile on 3000, cockpit on 3001) in demo mode. Stop with `Ctrl-C` or
+`docker compose -f infra/compose/docker-compose.yml down`. See
+[../.env.example](../.env.example) for the full list of variables; the
+compose file only overrides what differs from local defaults (service
+hostnames instead of `localhost`).

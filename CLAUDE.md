@@ -94,4 +94,5 @@ part depends on.
 - 2026-07-18 13:10 CET - Claude - Expanded the demo dataset to ten claims and had the fixture manifest validator assert each claim's state and route from data (D-0013).
 - 2026-07-18 13:20 CET - Claude - Added live metrics (time to FNOL, evidence completeness, route counts) as a gateway aggregation endpoint and a cockpit metrics strip (D-0014, B-2).
 - 2026-07-18 14:10 CET - Claude - Added the relationship-graph reveal: a `graphView` field on the Twin, built from the anomalies already detected, and a one-click SVG panel in the cockpit claim detail page (D-0015, B-3).
+- 2026-07-18 15:05 CET - Claude - Added Docker orchestration: one Dockerfile per service and app plus `infra/compose/docker-compose.yml`, verified with a live compose smoke run (D-0016, B-4).
 - 2026-07-18 15:45 CET - Claude - The gateway now seeds the demo queue with every manifest claim in the background after its own health is up, so the cockpit opens with a realistic queue in demo mode (D-0017, B-5).

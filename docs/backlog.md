@@ -64,12 +64,19 @@ fixed and reverified.
 
 ## P1 - strong if time allows
 
-### B-4 Docker orchestration
+### B-4 Docker orchestration - done, see D-0016
 
 `infra/docker` and `infra/compose` are empty but the architecture promises
 `docker compose` for local runs. Add one small Dockerfile per service and app
 and a compose file wiring ports 4000-4005, 3000, 3001. Verify with a compose
 smoke run.
+
+Verification caught two Alpine/Next.js specific bugs beyond the Dockerfiles
+themselves: musl's `localhost` resolving to `::1` before `0.0.0.0`-bound
+services broke `wget` healthchecks, and Next.js baking the `/api` rewrite
+target into the build rather than reading it at `next start` meant
+`GATEWAY_URL` had to be a Docker build arg, not just a runtime env var. Both
+fixed; see D-0016.
 
 ### B-5 Queue seeded on boot in demo mode - done, see D-0017
 
