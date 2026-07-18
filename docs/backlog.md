@@ -114,6 +114,28 @@ config, with DEMO_MODE staying the offline default. Central model and prompt
 config goes in `packages/config` (improvements P3.10). Do not let the demo
 path depend on it.
 
+## Bonus features (outside the P0-P2 list above)
+
+### B-9 Situational signals - done, see D-0022
+
+A standalone `services/signals` classifies regional news (floods, road
+incidents, outbreaks) with a criticality label, ported from a prior project's
+Python news-monitoring agent per the maintainer's request. Reached only
+through a new additive gateway route and its own cockpit page; never touches
+the claim pipeline or the Twin. See D-0022 for the full tradeoff, including
+why `urgency_score` became a label and why `business_opportunity` was dropped.
+
+### B-10 Per-claim event corroboration (a signals follow-up, not started)
+
+Match a signal event's time and place against a specific claim's `occurredAt`
+and `location` (both already evidenced Twin fields), and surface the result as
+a fourth consistency check next to the existing story-vs-image and
+invoice-vs-damage checks. This is the deeper integration the maintainer
+considered and deferred when scoping B-9 (see D-0022, option c). It is a Twin
+schema change and a pipeline call, so it needs its own decision-log entry and
+should not be started without confirming the scope first, per the working
+agreement in [../CLAUDE.md](../CLAUDE.md).
+
 ## Notes for implementers
 
 - The maintainer's shell corrupts PATH with terminal escape sequences, which

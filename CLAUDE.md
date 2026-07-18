@@ -71,7 +71,8 @@ Evidence Twin (`packages/contracts`) is the single shared contract that every
 part depends on.
 
 - apps: `mobile`, `cockpit`
-- services: `gateway`, `intake`, `evidence`, `claims`, `graph`, `notify`
+- services: `gateway`, `intake`, `evidence`, `claims`, `graph`, `notify`,
+  `signals` (standalone situational feed, not part of the claim pipeline)
 - packages: `contracts`, `config`, `logger`, `service-kit`, `ui`
 
 ## Product guardrails (never break)
@@ -96,6 +97,7 @@ part depends on.
 - 2026-07-18 14:10 CET - Claude - Added the relationship-graph reveal: a `graphView` field on the Twin, built from the anomalies already detected, and a one-click SVG panel in the cockpit claim detail page (D-0015, B-3).
 - 2026-07-18 15:05 CET - Claude - Added Docker orchestration: one Dockerfile per service and app plus `infra/compose/docker-compose.yml`, verified with a live compose smoke run (D-0016, B-4).
 - 2026-07-18 15:45 CET - Claude - The gateway now seeds the demo queue with every manifest claim in the background after its own health is up, so the cockpit opens with a realistic queue in demo mode (D-0017, B-5).
+- 2026-07-18 16:15 CET - Claude - Added `services/signals`, a standalone situational-awareness feed ported from a prior project, reached only through an additive gateway route and its own cockpit page. Never touches the claim pipeline or the Twin (D-0022, B-9).
 - 2026-07-18 16:20 CET - Claude - Scaffolded `packages/ui` with shared design tokens and `RouteBadge`/`ConfidenceBadge` components, fixing mobile's route text always rendering green and adding confidence badges to both apps (D-0018, B-6).
 - 2026-07-18 17:05 CET - Claude - Added a mobile language switcher (Derja, Français, العربية) driving `dir="rtl"`/`lang="ar"` for Arabic, fixed two unassociated group labels for screen readers, and added a visible keyboard-focus style (D-0019, B-7).
 - 2026-07-18 18:10 CET - Claude - Moved both apps to one dark, cinematic design language: shared design tokens now own the full ink and glass foundation (not just badge colors), `next/font` display and body faces, a brand mark, glowing status badges, and staggered entrance motion (D-0020).

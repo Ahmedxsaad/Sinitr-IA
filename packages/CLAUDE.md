@@ -30,6 +30,8 @@ running process.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created shared
   package guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Added service-kit to the shared packages and listed it here.
+- 2026-07-18 15:00 CET - Claude - Added `SIGNALS_PORT` and `SIGNALS_URL` to `config`'s env schema for the new standalone signals service (D-0022).
 - 2026-07-18 16:20 CET - Claude - Scaffolded `ui` as a real workspace member (`RouteBadge`, `ConfidenceBadge`, shared tokens.css), consumed by both `apps/mobile` and `apps/cockpit` (D-0018).
 - 2026-07-18 18:10 CET - Claude - `ui`'s tokens.css now owns the full dark cinematic foundation (ink and glass surfaces, gradients, glow shadows, motion), not just badge colors, and gained a third component, `BrandMark` (D-0020).
+- 2026-07-18 19:10 CET - Claude - Added `badge-criticality-{low,medium,high,critical}` to tokens.css and a `CriticalityBadge` component, extending the shared route/confidence badge color language to the signals feature (D-0022).
 - 2026-07-18 19:10 CET - Claude - `BrandMark` now embeds the designed logo (a base64 PNG cutout) instead of the hand-drawn placeholder mark (D-0022).

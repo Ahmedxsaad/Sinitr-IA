@@ -16,8 +16,10 @@ From the repo root:
 docker compose -f infra/compose/docker-compose.yml up --build
 ```
 
-Brings up all six backend services (ports 4000-4005) and both frontends
-(mobile on 3000, cockpit on 3001) in demo mode. Stop with `Ctrl-C` or
+Brings up all seven backend services (ports 4000-4006) and both frontends
+(mobile on 3000, cockpit on 3001) in demo mode. `signals` (4006) is standalone
+and not in the gateway's `depends_on`; every other service is required for the
+gateway to report healthy. Stop with `Ctrl-C` or
 `docker compose -f infra/compose/docker-compose.yml down`. See
 [../.env.example](../.env.example) for the full list of variables; the
 compose file only overrides what differs from local defaults (service

@@ -7,6 +7,7 @@ import { createHttpClients } from './core/clients.js';
 import { seedDemoQueue } from './core/seed.js';
 import { registerGatewayRoutes } from './routes/claims.js';
 import { registerMetricsRoutes } from './routes/metrics.js';
+import { registerSignalsRoutes } from './routes/signals.js';
 
 const clients = createHttpClients();
 
@@ -15,6 +16,7 @@ const app = createServer({
   register: async (instance) => {
     await registerGatewayRoutes(instance, clients);
     await registerMetricsRoutes(instance);
+    await registerSignalsRoutes(instance);
   },
 });
 

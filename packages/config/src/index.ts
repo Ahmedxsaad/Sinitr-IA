@@ -37,12 +37,17 @@ const envSchema = z
     CLAIMS_PORT: z.coerce.number().int().positive().default(4003),
     GRAPH_PORT: z.coerce.number().int().positive().default(4004),
     NOTIFY_PORT: z.coerce.number().int().positive().default(4005),
+    // Standalone situational-awareness feed. Additive: not part of the claim
+    // pipeline, so the gateway reaches it directly rather than through the
+    // ServiceClients interface.
+    SIGNALS_PORT: z.coerce.number().int().positive().default(4006),
 
     INTAKE_URL: z.string().url().default('http://localhost:4001'),
     EVIDENCE_URL: z.string().url().default('http://localhost:4002'),
     CLAIMS_URL: z.string().url().default('http://localhost:4003'),
     GRAPH_URL: z.string().url().default('http://localhost:4004'),
     NOTIFY_URL: z.string().url().default('http://localhost:4005'),
+    SIGNALS_URL: z.string().url().default('http://localhost:4006'),
   })
   .superRefine((value, context) => {
     if (!value.DEMO_MODE && !value.ADJUSTER_TOKEN) {
