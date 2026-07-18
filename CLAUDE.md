@@ -100,3 +100,4 @@ part depends on.
 - 2026-07-18 17:05 CET - Claude - Added a mobile language switcher (Derja, Français, العربية) driving `dir="rtl"`/`lang="ar"` for Arabic, fixed two unassociated group labels for screen readers, and added a visible keyboard-focus style (D-0019, B-7).
 - 2026-07-18 18:10 CET - Claude - Moved both apps to one dark, cinematic design language: shared design tokens now own the full ink and glass foundation (not just badge colors), `next/font` display and body faces, a brand mark, glowing status badges, and staggered entrance motion (D-0020).
 - 2026-07-18 18:25 CET - Claude - Added `docs/diagrams/architecture.svg` and `docs/diagrams/dataflow.svg`, hand-authored on-brand SVGs referenced from `docs/architecture.md` (D-0021).
+- 2026-07-18 19:10 CET - Claude - Replaced the placeholder `BrandMark` and both apps' favicons with the designed logo (D-0022).
