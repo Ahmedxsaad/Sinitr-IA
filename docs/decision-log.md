@@ -211,6 +211,40 @@ Template:
   (typecheck, lint, format, 121 tests, both app builds, the live smoke script,
   and `pnpm audit --prod`) is clean.
 
+## D-0013 - Expand the demo dataset to ten claims, with outcomes asserted from data
+
+- Date: 2026-07-18
+- Context: The dataset had only the two hero cases. The backlog (B-1) called
+  for broader coverage of the gates, the completeness scoring, the consistency
+  checks, and the coverage exclusion, both to stress-test the rules before the
+  demo and to give the mobile and cockpit UI more than two claims to show.
+- Options: (a) add more claims but only check they parse against the schema,
+  same as before, (b) add more claims and hand-write a dedicated assertion per
+  claim in a test file, (c) add `expectedState` and `expectedRoute` fields to
+  each manifest claim entry and have one generic test run every claim through
+  the real pipeline and assert against those fields.
+- Decision: (c). `fixtureManifestSchema`'s claim entries now carry
+  `expectedState` and `expectedRoute`. Eight new claims were added: `injury`
+  and `fire` and `rollover` exercise the safety and eligibility gates
+  (escalated, review); `sparse` exercises the low-completeness path down to a
+  low-confidence review; `no-invoice` exercises the fast-track completeness
+  floor (85 percent, just under the 90 percent minimum); `severe` exercises the
+  hidden-damage exclusion and the potential-hidden-damage escalation reason;
+  `honest-fr` is a French-language fast-track twin of the honest case;
+  `invoice-mismatch` exercises the invoice-versus-damage contradiction check in
+  isolation. Every expected value was derived by hand from the trust-gate,
+  scoring, and recommendation logic, then confirmed against one real pipeline
+  run before being written into the fixture.
+- Reason: A generic outcome test scales to any number of future claims without
+  new test code, and pinning the expectation in the manifest (data) rather than
+  in test code (logic) keeps the manifest the single source of what the
+  dataset is supposed to prove, matching the pattern already set for schema
+  validation.
+- Result: `tests/e2e/src/fixtures.test.ts` gained one test that runs all ten
+  claims through the in-process pipeline and asserts state and route. Full
+  verification (typecheck, lint, format, 122 tests, both app builds, the live
+  smoke script) is clean.
+
 ## D-0014 - Live metrics computed on read, not emitted as stored events
 
 - Date: 2026-07-18
@@ -220,16 +254,15 @@ Template:
   this as emitting events to a metrics endpoint). The gateway already holds
   every claim's full Twin, including its audit trail, in the in-memory
   `ClaimStore` (D-0007), and the Twin already carries everything the three
-  metrics need. Numbered D-0014, not D-0013, because branch
-  `feat/claims-expand-demo-dataset` (B-1, done first, not yet merged) already
-  claims D-0013; whichever branch merges second should renumber on conflict.
+  metrics need. Built on a separate branch from D-0013 (B-1), so numbered
+  D-0014 to avoid colliding with it once both merge.
 - Options: (a) a separate mutable metrics store that each pipeline step pushes
   events into, matching the "first-class events" framing in the improvements
   doc, (b) a pure function that aggregates the existing claim records on every
   read, with no new mutable state.
 - Decision: (b). `services/gateway/src/core/metrics.ts` exports
   `computeMetrics(records)`, a pure aggregation over `ClaimRecord[]`. `GET
-/api/metrics` calls it against the live `claimStore.list()`. Time to FNOL is
+  /api/metrics` calls it against the live `claimStore.list()`. Time to FNOL is
   read from the `claim.created` and `intake.structured` audit entries already
   on the Twin; evidence completeness comes from `twin.completeness.score`;
   route counts come from `twin.recommendation.route`.
@@ -245,4 +278,5 @@ Template:
   the queue and detail routes (D-0010). The cockpit queue page renders a
   four-tile metrics strip above the table, verified against live data with a
   headless-browser screenshot. Full verification (typecheck, lint, format, 121
-  tests, both app builds, the live smoke script) is clean.
+  tests, both app builds, the live smoke script) is clean on top of this
+  branch's own base; rerun against `main` after this merge (see the changelog).

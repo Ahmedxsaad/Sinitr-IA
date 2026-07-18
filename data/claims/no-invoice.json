@@ -1,0 +1,9 @@
+{
+  "locale": "derja",
+  "narrative": "Kont wa9ef fel feu rouge, karhba jet men wara w darbitni fel arriere gauche. Personne blesse. Plaque 620 TUN 4410.",
+  "injuryReported": false,
+  "collisionDirection": "rear_left",
+  "contact": { "phone": "+21620000105" },
+  "confirmed": true,
+  "mediaRefs": ["seed:no-invoice:vision:rear_left:cosmetic", "seed:no-invoice:doc:constat:standard"]
+}
