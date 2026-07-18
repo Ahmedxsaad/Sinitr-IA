@@ -495,3 +495,13 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   is clean, and the feature was confirmed live: the gateway route, the direct
   service route, and the cockpit page were all exercised against running
   processes, including a headless-browser screenshot of the rendered page.
+  Signals was built on a branch parallel to D-0016 (Docker orchestration), so
+  `infra/docker` and `infra/compose/docker-compose.yml` did not yet know it
+  existed. Fixed when resolving the merge: added
+  `infra/docker/signals.Dockerfile` (identical pattern to notify's) and a
+  `signals` compose service on port 4006, wired into the gateway's
+  `SIGNALS_URL` but deliberately left out of the gateway's `depends_on`, since
+  an optional, additive feed must never block the gateway's own health.
+  Verified with a live `docker build` and `docker run`: the image builds,
+  `/health` answers, and `/signals?region=tunisia` returns 4 classified
+  events.
