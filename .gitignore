@@ -46,5 +46,9 @@ Thumbs.db
 # Local demo media that should not be versioned (keep curated demo set tracked)
 data/**/local/
 
+# Personal photos for pitch materials (never committed, per this repo's rule
+# against personal names/images in shared files)
+teammates/
+
 # Claude Code: commit shared project settings, keep personal overrides local
 .claude/settings.local.json
