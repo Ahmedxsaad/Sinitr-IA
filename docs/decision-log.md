@@ -262,7 +262,7 @@ Template:
   read, with no new mutable state.
 - Decision: (b). `services/gateway/src/core/metrics.ts` exports
   `computeMetrics(records)`, a pure aggregation over `ClaimRecord[]`. `GET
-  /api/metrics` calls it against the live `claimStore.list()`. Time to FNOL is
+/api/metrics` calls it against the live `claimStore.list()`. Time to FNOL is
   read from the `claim.created` and `intake.structured` audit entries already
   on the Twin; evidence completeness comes from `twin.completeness.score`;
   route counts come from `twin.recommendation.route`.
@@ -277,6 +277,6 @@ Template:
 - Result: `computeMetrics` has 6 unit tests. `GET /api/metrics` is gated like
   the queue and detail routes (D-0010). The cockpit queue page renders a
   four-tile metrics strip above the table, verified against live data with a
-  headless-browser screenshot. Full verification (typecheck, lint, format, 121
-  tests, both app builds, the live smoke script) is clean on top of this
-  branch's own base; rerun against `main` after this merge (see the changelog).
+  headless-browser screenshot. After merging with D-0013 (`main`), full
+  verification (typecheck, lint, format, 128 tests, both app builds, the live
+  smoke script) is clean on the combined tree.
