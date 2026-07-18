@@ -821,3 +821,69 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   burned-in captions), verified by extracting frames at each caption
   boundary and confirming no overlapping captions and no caption
   mismatched with the visible screen state.
+
+## D-0028 - Real Gemini narrative extraction, scoped to text already flowing through the system
+
+- Date: 2026-07-18
+- Context: B-8 asked for one real hosted adapter behind a flag, speech being
+  the most demo-visible. Auditing the actual pipeline first (rather than
+  assuming) found: `request.narrative` is always typed text today, never
+  audio bytes (`MockSpeechAdapter.transcribe` treats its input as an
+  already-produced transcript, by design, see its own doc comment); and
+  `services/evidence`'s vision/OCR adapters resolve `seed:<case>:<kind>:<a>:<b>`
+  strings, with zero real image or document bytes anywhere in the repo
+  (`data/media` holds only a `.gitkeep`). So a real speech-to-text call has
+  no audio to transcribe, and a real vision call has no image to look at,
+  without first building real capture UI or bundling real sample media,
+  neither of which was in scope here.
+- Options: (a) wire Gemini into `MockSpeechAdapter`'s literal slot anyway,
+  even though there is no audio for it to add value over a plain pass-through,
+  (b) wire Gemini into the one place real text already flows through
+  end to end: replacing the regex/keyword-based collision-direction,
+  location, and plate extraction in `services/intake` with a real language-
+  understanding call, (c) skip intake and wire Gemini into `services/claims`'s
+  coverage grounding instead, (d) do nothing until real audio/image capture
+  exists.
+- Decision: (b), confirmed with the maintainer, who has a Gemini API key
+  ready. Added `NarrativeExtractor` (`services/intake/src/adapters/extractor.ts`),
+  a new adapter interface mirroring `SpeechAdapter`'s seam:
+  `extract(text, locale) -> { collisionDirection, location, plate, confidence }`.
+  `MockNarrativeExtractor` wraps the exact regex functions intake always used
+  (moved here from `fnol.ts` unchanged), so demo-mode behavior and every
+  existing test expectation stay byte-identical. `GeminiNarrativeExtractor`
+  calls the Gemini REST API directly with `fetch` (no new SDK dependency),
+  using `responseSchema`/`responseMimeType: 'application/json'` so the model
+  can only return one of the contract's own `impactAreaSchema` values for
+  collision direction; any other shape or an invalid enum value degrades to
+  `'unknown'` rather than corrupting the Twin, and a non-ok HTTP response or
+  empty content throws a clear error rather than silently returning wrong
+  data. `structureFnol` and `processIntake` now thread an extractor through
+  (async, since a real call can't stay a pure function) instead of calling
+  the regex functions inline. `createNarrativeExtractor()` is the selection
+  point: `packages/config`'s `GEMINI_API_KEY` and `GEMINI_MODEL` (default
+  `gemini-2.5-flash`) were added, with `GEMINI_API_KEY` required whenever
+  `DEMO_MODE` is false, exactly mirroring `ADJUSTER_TOKEN`'s existing
+  superRefine check (D-0010): flipping demo mode off without a key fails
+  config validation at boot, the same failure mode as forgetting the
+  adjuster token. Vision/OCR and claims coverage grounding are unchanged,
+  a deliberate follow-up once real sample media exists.
+- Reason: Option (a) would have been a real-provider call with no real
+  advantage over the existing mock, just replacing a free deterministic
+  pass-through with a paid non-deterministic one. Option (b) is the one
+  place a real model can add genuine value today: Derja, French, and Arabic
+  narratives phrase collision direction, location, and plates in enough
+  varied ways that keyword regex is inherently fragile, exactly what a
+  language model generalizes over. It also needed no new capture UI, no new
+  bundled media, and no Twin schema change, unlike (c) or extending vision.
+  Gating on `DEMO_MODE` (not merely "key present") means the demo's offline
+  guarantee never depends on network reachability by accident, matching
+  this repo's existing pattern for every other environment-gated behavior.
+- Result: 40 intake tests pass (up from 33: the moved regex tests plus new
+  Mock/Gemini extractor coverage, including a mocked-`fetch` test of the
+  real request shape, enum-safety fallback on invalid model output,
+  confidence clamping, and both HTTP-error and empty-content failure paths).
+  149 tests pass repo-wide (up from 142). Full verification (typecheck,
+  lint, format, both app builds, `pnpm audit --prod`, and a live
+  `scripts/smoke.sh` run over real HTTP) is clean. Not yet exercised against a real Gemini call in this environment
+  (no live network access here); the maintainer will verify with their own
+  key by setting `DEMO_MODE=false` and `GEMINI_API_KEY` in `.env.local`.

@@ -100,11 +100,14 @@ default; `.env.local` is never committed.
   no external network calls, no login required for the cockpit.
 - `ADJUSTER_TOKEN`: a bearer token guarding the cockpit's adjuster routes,
   required only when `DEMO_MODE=false`.
+- `GEMINI_API_KEY` / `GEMINI_MODEL`: real narrative extraction (collision
+  direction, location, plate) for `services/intake`, required only when
+  `DEMO_MODE=false`. Get a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
 - `*_PORT` / `*_URL`: each service's local port and the URL the gateway uses
   to reach it.
-- `SPEECH_API_KEY`, `VISION_API_KEY`, `LLM_API_KEY`, `SMS_API_KEY`: placeholders
-  for the real hosted providers each service's adapter interface is designed
-  to swap in (see [docs/architecture.md](docs/architecture.md)); left blank in
+- `VISION_API_KEY`, `LLM_API_KEY`, `SMS_API_KEY`: placeholders for the
+  remaining hosted providers each service's adapter interface is designed to
+  swap in (see [docs/architecture.md](docs/architecture.md)); left blank in
   demo mode.
 
 ## Testing
