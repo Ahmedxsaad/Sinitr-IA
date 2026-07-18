@@ -93,3 +93,4 @@ part depends on.
 - 2026-07-18 13:05 CET - Claude - Added `docs/backlog.md`, the prioritized build backlog for the remaining hackathon window, and linked it from the README.
 - 2026-07-18 13:10 CET - Claude - Expanded the demo dataset to ten claims and had the fixture manifest validator assert each claim's state and route from data (D-0013).
 - 2026-07-18 13:20 CET - Claude - Added live metrics (time to FNOL, evidence completeness, route counts) as a gateway aggregation endpoint and a cockpit metrics strip (D-0014, B-2).
+- 2026-07-18 14:10 CET - Claude - Added the relationship-graph reveal: a `graphView` field on the Twin, built from the anomalies already detected, and a one-click SVG panel in the cockpit claim detail page (D-0015, B-3).

@@ -83,6 +83,7 @@
   },
   "completeness": { "score": 100, "missing": [] },
   "anomalies": [],
+  "graphView": { "nodes": [], "edges": [] },
   "recommendation": {
     "route": "fast_track",
     "reasons": [

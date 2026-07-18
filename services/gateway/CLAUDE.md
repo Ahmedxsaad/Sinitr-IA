@@ -35,3 +35,4 @@ Purpose: the single entry point for both frontends.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the claim pipeline, in-memory store, decision handling, and public API.
 - 2026-07-18 03:24 CET - Codex - Added non-demo bearer-token protection for adjuster queue, detail, and decision routes.
 - 2026-07-18 13:20 CET - Claude - Added `GET /api/metrics`, a pure aggregation over the claim store (time to FNOL, evidence completeness, route counts), gated like the other adjuster routes. Extracted the shared `isAuthorizedAdjuster` check into `core/authz.ts` (D-0014).
+- 2026-07-18 14:10 CET - Claude - The pipeline now copies the graph service's `view` onto `twin.graphView`, alongside the existing `twin.anomalies` assignment (D-0015).

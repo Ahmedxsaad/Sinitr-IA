@@ -40,3 +40,4 @@ decision.
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Built the adjuster cockpit: queue, Evidence Twin review, and approve action.
 - 2026-07-18 13:20 CET - Claude - Added a live metrics strip (claims processed, average time to FNOL, average evidence completeness, route breakdown) above the queue table (D-0014).
+- 2026-07-18 14:10 CET - Claude - Added the relationship-graph reveal: a one-click inline-SVG panel on the claim detail page, shown when the claim has anomalies (D-0015).

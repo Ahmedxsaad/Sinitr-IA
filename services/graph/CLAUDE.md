@@ -36,3 +36,4 @@ Purpose: surface relationships and anomalies behind a suspicious claim.
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the seeded relationship graph and anomaly detection.
 - 2026-07-18 12:47 CET - Claude - Moved the seed graph from an inline constant into `data/graph/seed.json`, loaded and schema-validated at import time (D-0011).
+- 2026-07-18 14:10 CET - Claude - Added `buildGraphView`, a pure function that turns the detected anomalies into the cockpit's relationship-graph view (nodes and edges), returned alongside the anomaly flags (D-0015).

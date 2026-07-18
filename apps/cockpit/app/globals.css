@@ -171,6 +171,45 @@ button.secondary {
   font-size: 12px;
 }
 
+.graph-svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.graph-edge {
+  stroke: var(--line);
+  stroke-width: 2;
+}
+
+.graph-edge-label {
+  font-size: 11px;
+  fill: var(--muted);
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.graph-node {
+  stroke: var(--panel);
+  stroke-width: 2;
+  fill: var(--green-500);
+}
+
+.graph-node.focus {
+  fill: var(--green-700);
+}
+
+.graph-node.phone {
+  fill: var(--amber);
+}
+
+.graph-node-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text);
+}
+
 .muted {
   color: var(--muted);
 }
