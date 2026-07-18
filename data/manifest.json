@@ -3,12 +3,72 @@
     {
       "id": "honest",
       "path": "data/claims/honest.json",
-      "description": "Honest, eligible claim: consistent story, image, and documents. Fast-tracks."
+      "description": "Honest, eligible claim: consistent story, image, and documents. Fast-tracks.",
+      "expectedState": "recommended",
+      "expectedRoute": "fast_track"
     },
     {
       "id": "suspicious",
       "path": "data/claims/suspicious.json",
-      "description": "Suspicious claim: damage location contradicts the reported collision, the invoice is mechanical against light damage, and the image and garage phone were seen on a prior claim. Routes to investigation."
+      "description": "Suspicious claim: damage location contradicts the reported collision, the invoice is mechanical against light damage, and the image and garage phone were seen on a prior claim. Routes to investigation.",
+      "expectedState": "recommended",
+      "expectedRoute": "investigate"
+    },
+    {
+      "id": "injury",
+      "path": "data/claims/injury.json",
+      "description": "Injury reported. The safety gate bypasses automation before evidence ever runs.",
+      "expectedState": "escalated",
+      "expectedRoute": "review"
+    },
+    {
+      "id": "fire",
+      "path": "data/claims/fire.json",
+      "description": "Narrative mentions the vehicle caught fire. The eligibility gate bypasses automation as a complex event.",
+      "expectedState": "escalated",
+      "expectedRoute": "review"
+    },
+    {
+      "id": "rollover",
+      "path": "data/claims/rollover.json",
+      "description": "Narrative mentions a rollover (tonneau). The eligibility gate bypasses automation as a complex event.",
+      "expectedState": "escalated",
+      "expectedRoute": "review"
+    },
+    {
+      "id": "sparse",
+      "path": "data/claims/sparse.json",
+      "description": "No media at all and no detectable location or collision direction. Completeness drops to 10 percent, which pulls confidence below the low-confidence threshold and routes to human review.",
+      "expectedState": "recommended",
+      "expectedRoute": "review"
+    },
+    {
+      "id": "no-invoice",
+      "path": "data/claims/no-invoice.json",
+      "description": "Photo and constat only, no repair invoice. Completeness lands at 85 percent, below the fast-track minimum, so a human reviews an otherwise consistent claim.",
+      "expectedState": "recommended",
+      "expectedRoute": "review"
+    },
+    {
+      "id": "severe",
+      "path": "data/claims/severe.json",
+      "description": "Severe front damage with a consistent story and documents. Coverage surfaces the hidden-damage exclusion clause, and the severity itself triggers investigation.",
+      "expectedState": "recommended",
+      "expectedRoute": "investigate"
+    },
+    {
+      "id": "honest-fr",
+      "path": "data/claims/honest-fr.json",
+      "description": "French-language twin of the honest case: consistent story, image, and documents. Fast-tracks.",
+      "expectedState": "recommended",
+      "expectedRoute": "fast_track"
+    },
+    {
+      "id": "invoice-mismatch",
+      "path": "data/claims/invoice-mismatch.json",
+      "description": "Cosmetic visible damage paired with an engine repair invoice. The mismatch is a contradiction that routes to investigation even though nothing else about the claim is unusual.",
+      "expectedState": "recommended",
+      "expectedRoute": "investigate"
     }
   ],
   "policies": [
@@ -52,6 +112,61 @@
       "ref": "seed:suspicious:doc:invoice:engine",
       "kind": "doc",
       "description": "Engine repair invoice for the suspicious case. Mismatched against the light visible damage."
+    },
+    {
+      "ref": "seed:no-invoice:vision:rear_left:cosmetic",
+      "kind": "vision",
+      "description": "Cosmetic rear-left damage photo for the no-invoice case."
+    },
+    {
+      "ref": "seed:no-invoice:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat for the no-invoice case. No invoice is provided, which is the point of the case."
+    },
+    {
+      "ref": "seed:severe:vision:front:severe",
+      "kind": "vision",
+      "description": "Severe front damage photo for the severe case, surfacing the hidden-damage exclusion."
+    },
+    {
+      "ref": "seed:severe:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat for the severe case."
+    },
+    {
+      "ref": "seed:severe:doc:invoice:body_panel",
+      "kind": "doc",
+      "description": "Body-panel repair invoice for the severe case, consistent with the reported impact area."
+    },
+    {
+      "ref": "seed:honest-fr:vision:rear_left:cosmetic",
+      "kind": "vision",
+      "description": "Cosmetic rear-left damage photo for the French honest twin case."
+    },
+    {
+      "ref": "seed:honest-fr:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat for the French honest twin case."
+    },
+    {
+      "ref": "seed:honest-fr:doc:invoice:body_panel",
+      "kind": "doc",
+      "description": "Body-panel repair invoice for the French honest twin case."
+    },
+    {
+      "ref": "seed:invoice-mismatch:vision:rear_left:cosmetic",
+      "kind": "vision",
+      "description": "Cosmetic rear-left damage photo for the invoice-mismatch case."
+    },
+    {
+      "ref": "seed:invoice-mismatch:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat for the invoice-mismatch case."
+    },
+    {
+      "ref": "seed:invoice-mismatch:doc:invoice:engine",
+      "kind": "doc",
+      "description": "Engine repair invoice for the invoice-mismatch case. Mismatched against the light visible damage."
     }
   ]
 }
