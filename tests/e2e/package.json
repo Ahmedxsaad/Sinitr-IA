@@ -1,0 +1,22 @@
+{
+  "name": "@sinistria/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "In-process end-to-end pipeline tests over the scripted demo cases.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@sinistria/claims": "workspace:*",
+    "@sinistria/contracts": "workspace:*",
+    "@sinistria/evidence": "workspace:*",
+    "@sinistria/gateway": "workspace:*",
+    "@sinistria/graph": "workspace:*",
+    "@sinistria/intake": "workspace:*",
+    "@sinistria/notify": "workspace:*",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
