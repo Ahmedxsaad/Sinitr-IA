@@ -210,3 +210,39 @@ Template:
 - Result: 8 new tests pass (6 manifest, 2 golden), full verification
   (typecheck, lint, format, 121 tests, both app builds, the live smoke script,
   and `pnpm audit --prod`) is clean.
+
+## D-0014 - Live metrics computed on read, not emitted as stored events
+
+- Date: 2026-07-18
+- Context: The backlog (B-2) called for live metrics: time to structured FNOL,
+  evidence completeness, and route counts, shown in the cockpit as the "measurable
+  impact" demo beat (see plan.md section 9 and improvements P2.6, which frames
+  this as emitting events to a metrics endpoint). The gateway already holds
+  every claim's full Twin, including its audit trail, in the in-memory
+  `ClaimStore` (D-0007), and the Twin already carries everything the three
+  metrics need. Numbered D-0014, not D-0013, because branch
+  `feat/claims-expand-demo-dataset` (B-1, done first, not yet merged) already
+  claims D-0013; whichever branch merges second should renumber on conflict.
+- Options: (a) a separate mutable metrics store that each pipeline step pushes
+  events into, matching the "first-class events" framing in the improvements
+  doc, (b) a pure function that aggregates the existing claim records on every
+  read, with no new mutable state.
+- Decision: (b). `services/gateway/src/core/metrics.ts` exports
+  `computeMetrics(records)`, a pure aggregation over `ClaimRecord[]`. `GET
+/api/metrics` calls it against the live `claimStore.list()`. Time to FNOL is
+  read from the `claim.created` and `intake.structured` audit entries already
+  on the Twin; evidence completeness comes from `twin.completeness.score`;
+  route counts come from `twin.recommendation.route`.
+- Reason: A second mutable store duplicates state that the claim store already
+  holds and risks drifting from it (a metric could outlive or contradict its
+  claim). A pure function of existing records is real, live, and derived
+  data, exactly what the improvement asked for ("real events beat hardcoded
+  numbers"), and it is trivial to unit test without any store or HTTP
+  scaffolding. The gateway's own boundary rule (routing and aggregation only,
+  no business logic) fits an aggregation function better than a second stateful
+  seam.
+- Result: `computeMetrics` has 6 unit tests. `GET /api/metrics` is gated like
+  the queue and detail routes (D-0010). The cockpit queue page renders a
+  four-tile metrics strip above the table, verified against live data with a
+  headless-browser screenshot. Full verification (typecheck, lint, format, 121
+  tests, both app builds, the live smoke script) is clean.

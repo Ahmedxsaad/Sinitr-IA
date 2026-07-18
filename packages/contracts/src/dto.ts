@@ -156,3 +156,21 @@ export const adjusterDecisionRequestSchema = z.object({
   note: z.string().optional(),
 });
 export type AdjusterDecisionRequest = z.infer<typeof adjusterDecisionRequestSchema>;
+
+/**
+ * Gateway to cockpit: live aggregates over every claim processed this session
+ * (see improvements P2.6). Averages are `null` until at least one claim
+ * contributes a value, so the cockpit can show "not enough data yet" instead
+ * of a misleading zero.
+ */
+export const metricsResultSchema = z.object({
+  totalClaims: z.number().int().min(0),
+  averageTimeToFnolMs: z.number().min(0).nullable(),
+  averageEvidenceCompleteness: z.number().min(0).max(100).nullable(),
+  routeCounts: z.object({
+    fast_track: z.number().int().min(0),
+    review: z.number().int().min(0),
+    investigate: z.number().int().min(0),
+  }),
+});
+export type MetricsResult = z.infer<typeof metricsResultSchema>;
