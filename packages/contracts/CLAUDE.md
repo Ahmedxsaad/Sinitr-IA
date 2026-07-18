@@ -40,3 +40,4 @@ so nothing is redefined elsewhere.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the Evidence Twin schema, enums, primitives, DTOs, and state machine.
 - 2026-07-18 03:24 CET - Codex - Required confirmed submissions and bounded external payload fields, with rejection tests.
 - 2026-07-18 12:47 CET - Claude - Added `fixtures.ts`: schemas for the `data/` fixture files (policy, graph seed, and the fixture manifest), so the fixtures on disk and the services that load them share one shape (D-0011, D-0012).
+- 2026-07-18 13:20 CET - Claude - Added `metricsResultSchema` for the gateway's live metrics response (D-0014).

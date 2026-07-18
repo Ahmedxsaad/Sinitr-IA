@@ -4,8 +4,15 @@
 import { getConfig } from '@sinistria/config';
 import { createServer, start } from '@sinistria/service-kit';
 import { registerGatewayRoutes } from './routes/claims.js';
+import { registerMetricsRoutes } from './routes/metrics.js';
 
-const app = createServer({ name: 'gateway', register: registerGatewayRoutes });
+const app = createServer({
+  name: 'gateway',
+  register: async (instance) => {
+    await registerGatewayRoutes(instance);
+    await registerMetricsRoutes(instance);
+  },
+});
 
 start(app, getConfig().GATEWAY_PORT).catch((error: unknown) => {
   app.log.error({ err: error }, 'gateway failed to start');

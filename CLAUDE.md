@@ -91,3 +91,4 @@ part depends on.
 - 2026-07-18 03:24 CET - Codex - Completed the repository audit, hardened input and error boundaries, fixed demo coverage paths, and documented verification and deployment controls.
 - 2026-07-18 12:47 CET - Claude - Moved the seeded policy and relationship graph into validated `data/` fixtures, added a fixture manifest with a validator and golden Twin fixtures for both hero cases (D-0011, D-0012). Full verification passed.
 - 2026-07-18 13:05 CET - Claude - Added `docs/backlog.md`, the prioritized build backlog for the remaining hackathon window, and linked it from the README.
+- 2026-07-18 13:20 CET - Claude - Added live metrics (time to FNOL, evidence completeness, route counts) as a gateway aggregation endpoint and a cockpit metrics strip (D-0014, B-2).

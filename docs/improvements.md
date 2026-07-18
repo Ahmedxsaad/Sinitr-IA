@@ -45,12 +45,15 @@ in `services/claims`, fully unit tested.
 Why: this module is the credibility centerpiece the risk jury will probe. Rules
 must be explainable, not buried in a model. Cost: medium.
 
-### 6. Metrics as first-class events
+### 6. Metrics as first-class events - done, see D-0014
 
 Emit `time_to_fnol`, `evidence_completeness`, and route counts as events to a
 lightweight metrics endpoint the cockpit reads live.
 Why: the demo shows measurable impact. Real events beat hardcoded numbers and
 keep the "labelled as targets" honesty. Cost: medium.
+
+Implemented as a pure aggregation over the existing claim store rather than a
+separate event store (see D-0014 for the tradeoff).
 
 ### 7. Schema-validate every model output before trusting it
 
