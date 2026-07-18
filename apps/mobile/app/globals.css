@@ -48,7 +48,8 @@ h1 {
   margin-bottom: 16px;
 }
 
-label {
+label,
+.group-label {
   display: block;
   font-size: 13px;
   color: var(--muted);
@@ -96,6 +97,17 @@ button.secondary {
 
 button[aria-pressed='true'] {
   outline: 2px solid var(--sinistria-green-500);
+}
+
+/* A clear, consistent keyboard-focus ring on every interactive element,
+   rather than relying on each browser's own (often faint or clipped)
+   default outline. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--sinistria-green-500);
+  outline-offset: 2px;
 }
 
 /* A bigger badge for the result hero moment; color comes from the shared

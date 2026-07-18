@@ -43,7 +43,14 @@ const SUSPICIOUS_DEMO = {
   evidence: { photo: true, constat: true, invoice: true },
 };
 
+const LOCALES: { value: Locale; label: string }[] = [
+  { value: 'derja', label: 'Derja' },
+  { value: 'fr', label: 'Français' },
+  { value: 'ar', label: 'العربية' },
+];
+
 export default function ReportPage() {
+  const [locale, setLocale] = useState<Locale>('derja');
   const [injuryReported, setInjuryReported] = useState<boolean | null>(null);
   const [narrative, setNarrative] = useState('');
   const [collisionDirection, setCollisionDirection] = useState<ImpactArea>('unknown');
@@ -62,6 +69,7 @@ export default function ReportPage() {
 
   function loadHonestDemo() {
     setDemoCase('honest');
+    setLocale(HONEST_DEMO.locale);
     setInjuryReported(false);
     setNarrative(HONEST_DEMO.narrative);
     setCollisionDirection(HONEST_DEMO.collisionDirection);
@@ -74,6 +82,7 @@ export default function ReportPage() {
 
   function loadSuspiciousDemo() {
     setDemoCase('suspicious');
+    setLocale(SUSPICIOUS_DEMO.locale);
     setInjuryReported(false);
     setNarrative(SUSPICIOUS_DEMO.narrative);
     setCollisionDirection(SUSPICIOUS_DEMO.collisionDirection);
@@ -112,7 +121,7 @@ export default function ReportPage() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          locale: 'derja',
+          locale,
           narrative,
           injuryReported,
           collisionDirection,
@@ -133,16 +142,39 @@ export default function ReportPage() {
     }
   }
 
+  const isRtl = locale === 'ar';
+
   return (
-    <main className="phone">
+    <main className="phone" dir={isRtl ? 'rtl' : undefined} lang={isRtl ? 'ar' : undefined}>
       <h1>AMIN</h1>
       <p className="assistant">I am here to help. Let us capture what happened, calmly.</p>
 
       {!twin && (
         <>
           <div className="card">
-            <label>Is anyone injured or in danger?</label>
-            <div className="toggle">
+            <span id="locale-label" className="group-label">
+              Language
+            </span>
+            <div className="toggle" role="group" aria-labelledby="locale-label">
+              {LOCALES.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className="secondary"
+                  aria-pressed={locale === option.value}
+                  onClick={() => setLocale(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="card">
+            <span id="safety-label" className="group-label">
+              Is anyone injured or in danger?
+            </span>
+            <div className="toggle" role="group" aria-labelledby="safety-label">
               <button
                 type="button"
                 className="secondary"
@@ -163,7 +195,7 @@ export default function ReportPage() {
           </div>
 
           <div className="card">
-            <label htmlFor="narrative">Tell me what happened (Derja or French)</label>
+            <label htmlFor="narrative">Tell me what happened (Derja, French, or Arabic)</label>
             <textarea
               id="narrative"
               rows={4}

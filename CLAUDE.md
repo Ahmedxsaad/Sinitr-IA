@@ -97,3 +97,4 @@ part depends on.
 - 2026-07-18 15:05 CET - Claude - Added Docker orchestration: one Dockerfile per service and app plus `infra/compose/docker-compose.yml`, verified with a live compose smoke run (D-0016, B-4).
 - 2026-07-18 15:45 CET - Claude - The gateway now seeds the demo queue with every manifest claim in the background after its own health is up, so the cockpit opens with a realistic queue in demo mode (D-0017, B-5).
 - 2026-07-18 16:20 CET - Claude - Scaffolded `packages/ui` with shared design tokens and `RouteBadge`/`ConfidenceBadge` components, fixing mobile's route text always rendering green and adding confidence badges to both apps (D-0018, B-6).
+- 2026-07-18 17:05 CET - Claude - Added a mobile language switcher (Derja, Français, العربية) driving `dir="rtl"`/`lang="ar"` for Arabic, fixed two unassociated group labels for screen readers, and added a visible keyboard-focus style (D-0019, B-7).

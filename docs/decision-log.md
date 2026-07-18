@@ -494,3 +494,52 @@ Template:
   confidence badge (previously always green); the cockpit queue table and
   claim detail page render the same badges for all ten seeded claims plus the
   two just submitted, with no browser console errors.
+
+## D-0019 - RTL and accessibility fixes scoped to the mobile journey only
+
+- Date: 2026-07-18
+- Context: The backlog (B-7, improvements P3.9) asked for `dir="rtl"` for the
+  Arabic locale, screen-reader labels, and focus states in the mobile
+  journey. Auditing the app found there was no locale switcher at all: the
+  submit payload hardcoded `locale: 'derja'` regardless of what a customer
+  actually spoke, so Arabic (`'ar'` in `localeSchema`) was unreachable from
+  the UI, and `<html lang="fr">` never changed. Two of the app's option
+  groups (the safety question, and now the new language choice) rendered a
+  bare `<label>` above a row of toggle buttons, which a screen reader does
+  not associate with the group the way `<label for>` associates with a
+  single control. There was no explicit keyboard-focus style anywhere; every
+  interactive element relied on each browser's own default outline.
+- Options: (a) add `dir="rtl"` only, treating the label/focus gaps as a
+  separate task, (b) do the minimum the backlog literally lists: a locale
+  switcher so Arabic is reachable and drives `dir`/`lang`, `role="group"` +
+  `aria-labelledby` on the two toggle groups, and an explicit
+  `:focus-visible` style, (c) additionally translate every UI string into
+  Arabic for a fully localized experience.
+- Decision: (b). Added a `locale` state (default `'derja'`, matching prior
+  behavior) with a three-way toggle (Derja, Français, العربية) using the same
+  button-group pattern already established for the safety question; selecting
+  it drives the submit payload's `locale` field, previously hardcoded. `<main
+dir={locale === 'ar' ? 'rtl' : undefined} lang={locale === 'ar' ? 'ar' :
+undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
+  (Latin-script Tunisian Arabic per the seeded narratives) and French as LTR.
+  Both toggle groups now use `role="group"` with `aria-labelledby` pointing at
+  a `.group-label` span (visually identical to the existing `label` style)
+  instead of a floating, unassociated `<label>`. Added one
+  `:focus-visible` rule (green outline, matching the existing `aria-pressed`
+  indicator color) covering every button, input, textarea, and select.
+- Reason: Option (a) alone would still leave Arabic unreachable, since the
+  actual product gap was that no path existed to select it, not that
+  `dir="rtl"` was missing given a locale that could never be chosen. Option
+  (c) is full i18n, a much larger and separately reviewable project the
+  backlog does not ask for (improvements.md scopes this item to "front-end
+  only" RTL and screen-reader labels, not translated copy); the visible
+  strings stay in English/French as before.
+- Result: No custom CSS was needed for the mirroring itself: plain flexbox
+  under `dir="rtl"` reverses button order and block-level fill bars
+  (`.meter > span`) automatically. Verified live with Playwright against the
+  built app: selecting العربية sets `dir="rtl"` and `lang="ar"` on the form
+  container (confirmed by reading the attributes back), the whole form
+  mirrors correctly (heading, text alignment, and the three-button toggle
+  order all flip), and `Tab` produces a clearly visible focus ring on the
+  next control. Full verification (typecheck, lint, format, 134 tests, both
+  app builds) is clean.
