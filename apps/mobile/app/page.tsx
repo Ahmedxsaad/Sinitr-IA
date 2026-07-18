@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { AccidentEvidenceTwin, ImpactArea, Locale } from '@sinistria/contracts';
 import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
 
@@ -49,9 +49,22 @@ const LOCALES: { value: Locale; label: string }[] = [
   { value: 'ar', label: 'العربية' },
 ];
 
+/** "0:07" for a duration in seconds, "0:00" while metadata is not loaded yet. */
+function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 export default function ReportPage() {
   const [locale, setLocale] = useState<Locale>('derja');
   const [injuryReported, setInjuryReported] = useState<boolean | null>(null);
+  const [voiceState, setVoiceState] = useState<'idle' | 'playing' | 'revealed'>('idle');
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [narrative, setNarrative] = useState('');
   const [collisionDirection, setCollisionDirection] = useState<ImpactArea>('unknown');
   const [phone, setPhone] = useState('');
@@ -67,11 +80,42 @@ export default function ReportPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Types the transcript out a character at a time, as if it just arrived from
+  // the voice note, then hands the form to the rest of the guided journey.
+  function revealNarrative(fullText: string) {
+    if (typewriterRef.current) clearInterval(typewriterRef.current);
+    setNarrative('');
+    let index = 0;
+    typewriterRef.current = setInterval(() => {
+      index += 1;
+      setNarrative(fullText.slice(0, index));
+      if (index >= fullText.length) {
+        if (typewriterRef.current) clearInterval(typewriterRef.current);
+        setVoiceState('revealed');
+      }
+    }, 24);
+  }
+
+  function startVoiceCapture() {
+    setVoiceState('playing');
+    setNarrative('');
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      void audio.play();
+    }
+  }
+
+  function skipVoiceCapture() {
+    setVoiceState('revealed');
+  }
+
   function loadHonestDemo() {
     setDemoCase('honest');
     setLocale(HONEST_DEMO.locale);
     setInjuryReported(false);
-    setNarrative(HONEST_DEMO.narrative);
+    setVoiceState('idle');
+    setNarrative('');
     setCollisionDirection(HONEST_DEMO.collisionDirection);
     setPhone(HONEST_DEMO.phone);
     setGaragePhone('');
@@ -84,12 +128,20 @@ export default function ReportPage() {
     setDemoCase('suspicious');
     setLocale(SUSPICIOUS_DEMO.locale);
     setInjuryReported(false);
+    setVoiceState('revealed');
     setNarrative(SUSPICIOUS_DEMO.narrative);
     setCollisionDirection(SUSPICIOUS_DEMO.collisionDirection);
     setPhone(SUSPICIOUS_DEMO.phone);
     setGaragePhone(SUSPICIOUS_DEMO.garagePhone);
     setEvidence(SUSPICIOUS_DEMO.evidence);
     setTwin(null);
+    setError(null);
+  }
+
+  function reportAnother() {
+    setTwin(null);
+    setVoiceState('idle');
+    setNarrative('');
     setError(null);
   }
 
@@ -195,69 +247,71 @@ export default function ReportPage() {
           </div>
 
           <div className="card">
-            <label htmlFor="narrative">Tell me what happened (Derja, French, or Arabic)</label>
-            <textarea
-              id="narrative"
-              rows={4}
-              value={narrative}
-              onChange={(event) => setNarrative(event.target.value)}
-              placeholder="Kont wa9ef..."
-            />
-          </div>
+            {voiceState !== 'revealed' && (
+              <span id="voice-label" className="group-label">
+                Tell me what happened
+              </span>
+            )}
 
-          <div className="card">
-            <label htmlFor="direction">Where was the impact?</label>
-            <select
-              id="direction"
-              value={collisionDirection}
-              onChange={(event) => setCollisionDirection(event.target.value as ImpactArea)}
-            >
-              {DIRECTIONS.map((direction) => (
-                <option key={direction} value={direction}>
-                  {direction.replace('_', ' ')}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="card">
-            <label>Evidence captured</label>
-            {(['photo', 'constat', 'invoice'] as const).map((key) => (
-              <div key={key}>
-                <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input
-                    type="checkbox"
-                    style={{ width: 'auto' }}
-                    checked={evidence[key]}
-                    onChange={(event) => setEvidence({ ...evidence, [key]: event.target.checked })}
-                  />
-                  {key === 'photo'
-                    ? 'Damage photo'
-                    : key === 'constat'
-                      ? 'Constat'
-                      : 'Repair invoice'}
-                </label>
+            {voiceState === 'idle' && (
+              <div className="voice-capture">
+                <button
+                  type="button"
+                  className="mic-button"
+                  aria-label="Record your voice"
+                  onClick={startVoiceCapture}
+                >
+                  <span aria-hidden="true">●</span>
+                </button>
+                <p className="assistant">Tap to record your voice</p>
+                <button type="button" className="secondary small-link" onClick={skipVoiceCapture}>
+                  Type instead
+                </button>
               </div>
-            ))}
-          </div>
+            )}
 
-          <div className="card">
-            <label htmlFor="phone">Your phone number</label>
-            <input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
-            <label htmlFor="garage-phone">Garage phone (optional)</label>
-            <input
-              id="garage-phone"
-              value={garagePhone}
-              onChange={(event) => setGaragePhone(event.target.value)}
+            {voiceState === 'playing' && (
+              <div className="voice-capture" aria-live="polite">
+                <div className="waveform" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <p className="assistant">
+                  Listening... {formatTime(elapsed)} / {formatTime(duration)}
+                </p>
+              </div>
+            )}
+
+            {voiceState === 'revealed' && (
+              <>
+                <label htmlFor="narrative">Tell me what happened (Derja, French, or Arabic)</label>
+                <textarea
+                  id="narrative"
+                  rows={4}
+                  value={narrative}
+                  onChange={(event) => setNarrative(event.target.value)}
+                  placeholder="Kont wa9ef..."
+                />
+                <button type="button" className="secondary small-link" onClick={startVoiceCapture}>
+                  Replay voice note
+                </button>
+              </>
+            )}
+
+            <audio
+              ref={audioRef}
+              src="/audio/honest-demo.mp3"
+              preload="auto"
+              onEnded={() => revealNarrative(HONEST_DEMO.narrative)}
+              onTimeUpdate={(event) => setElapsed(event.currentTarget.currentTime)}
+              onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
             />
           </div>
-
-          {error && <p className="error">{error}</p>}
 
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" onClick={submit} disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit report'}
-            </button>
             <button type="button" className="secondary" onClick={loadHonestDemo}>
               Load demo case
             </button>
@@ -265,6 +319,71 @@ export default function ReportPage() {
               Load suspicious demo
             </button>
           </div>
+
+          {voiceState === 'revealed' && (
+            <>
+              <div className="card">
+                <label htmlFor="direction">Where was the impact?</label>
+                <select
+                  id="direction"
+                  value={collisionDirection}
+                  onChange={(event) => setCollisionDirection(event.target.value as ImpactArea)}
+                >
+                  {DIRECTIONS.map((direction) => (
+                    <option key={direction} value={direction}>
+                      {direction.replace('_', ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="card">
+                <label>Evidence captured</label>
+                {(['photo', 'constat', 'invoice'] as const).map((key) => (
+                  <div key={key}>
+                    <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        style={{ width: 'auto' }}
+                        checked={evidence[key]}
+                        onChange={(event) =>
+                          setEvidence({ ...evidence, [key]: event.target.checked })
+                        }
+                      />
+                      {key === 'photo'
+                        ? 'Damage photo'
+                        : key === 'constat'
+                          ? 'Constat'
+                          : 'Repair invoice'}
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <div className="card">
+                <label htmlFor="phone">Your phone number</label>
+                <input
+                  id="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+                <label htmlFor="garage-phone">Garage phone (optional)</label>
+                <input
+                  id="garage-phone"
+                  value={garagePhone}
+                  onChange={(event) => setGaragePhone(event.target.value)}
+                />
+              </div>
+
+              {error && <p className="error">{error}</p>}
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button type="button" onClick={submit} disabled={submitting}>
+                  {submitting ? 'Submitting...' : 'Submit report'}
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -292,7 +411,7 @@ export default function ReportPage() {
           {twin.recommendation && (
             <p className="assistant">{twin.recommendation.draftCustomerMessage}</p>
           )}
-          <button type="button" className="secondary" onClick={() => setTwin(null)}>
+          <button type="button" className="secondary" onClick={reportAnother}>
             Report another
           </button>
         </div>
