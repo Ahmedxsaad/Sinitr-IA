@@ -2,9 +2,9 @@
 
 Prioritized, demo-first task list for the remaining hackathon window. Each task
 is one branch and one focused commit series. Before starting a task, reread
-[../CLAUDE.md](../CLAUDE.md); after finishing, run `pnpm typecheck && pnpm lint
-&& pnpm format:check && pnpm test && bash scripts/smoke.sh` and update the
-relevant changelog and, for non-obvious choices, [decision-log.md](decision-log.md).
+[conventions.md](conventions.md); after finishing, run `pnpm typecheck && pnpm
+lint && pnpm format:check && pnpm test && bash scripts/smoke.sh` and, for
+non-obvious choices, record the reasoning in [decision-log.md](decision-log.md).
 
 ## P0 - demo critical
 
@@ -116,13 +116,13 @@ path depend on it.
 
 ## Bonus features (outside the P0-P2 list above)
 
-### B-9 Situational signals - done, see D-0022
+### B-9 Situational signals - done, see D-0027
 
 A standalone `services/signals` classifies regional news (floods, road
 incidents, outbreaks) with a criticality label, ported from a prior project's
 Python news-monitoring agent per the maintainer's request. Reached only
 through a new additive gateway route and its own cockpit page; never touches
-the claim pipeline or the Twin. See D-0022 for the full tradeoff, including
+the claim pipeline or the Twin. See D-0027 for the full tradeoff, including
 why `urgency_score` became a label and why `business_opportunity` was dropped.
 
 ### B-10 Per-claim event corroboration (a signals follow-up, not started)
@@ -131,10 +131,10 @@ Match a signal event's time and place against a specific claim's `occurredAt`
 and `location` (both already evidenced Twin fields), and surface the result as
 a fourth consistency check next to the existing story-vs-image and
 invoice-vs-damage checks. This is the deeper integration the maintainer
-considered and deferred when scoping B-9 (see D-0022, option c). It is a Twin
+considered and deferred when scoping B-9 (see D-0027, option c). It is a Twin
 schema change and a pipeline call, so it needs its own decision-log entry and
-should not be started without confirming the scope first, per the working
-agreement in [../CLAUDE.md](../CLAUDE.md).
+should not be started without confirming the scope first, per this repo's
+working agreement in [conventions.md](conventions.md).
 
 ## Notes for implementers
 
