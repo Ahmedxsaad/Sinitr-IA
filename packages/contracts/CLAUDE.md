@@ -38,3 +38,4 @@ so nothing is redefined elsewhere.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created contract
   package guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the Evidence Twin schema, enums, primitives, DTOs, and state machine.
+- 2026-07-18 03:24 CET - Codex - Required confirmed submissions and bounded external payload fields, with rejection tests.

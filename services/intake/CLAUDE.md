@@ -35,3 +35,4 @@ run the first safety and eligibility gates.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the speech mock, FNOL structuring, and the safety and eligibility gates.
+- 2026-07-18 03:24 CET - Codex - Hardened complexity matching with word boundaries and added regression coverage for false positives.

@@ -36,3 +36,4 @@ Purpose: the calm, guided mobile web journey the driver uses at the roadside.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Built the guided Derja report journey with the demo case and completeness meter.
+- 2026-07-18 03:24 CET - Codex - Exposed the suspicious demo path and forwarded optional garage evidence to graph analysis.

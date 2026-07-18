@@ -33,3 +33,4 @@ Purpose: the single entry point for both frontends.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the claim pipeline, in-memory store, decision handling, and public API.
+- 2026-07-18 03:24 CET - Codex - Added non-demo bearer-token protection for adjuster queue, detail, and decision routes.

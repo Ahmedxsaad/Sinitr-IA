@@ -50,6 +50,8 @@ cockpit to review the Evidence Twin and approve.
 - [docs/conventions.md](docs/conventions.md) - commits, branches, code style.
 - [docs/decision-log.md](docs/decision-log.md) - decisions, reasons, results.
 - [docs/improvements.md](docs/improvements.md) - proposed improvements.
+- [docs/testing-and-security.md](docs/testing-and-security.md) - audit scope,
+  verification results, findings, and deployment controls.
 - [CLAUDE.md](CLAUDE.md) - rules for AI agents and contributors.
 
 ## Status

@@ -27,6 +27,9 @@
     "vitest": "^2.1.8"
   },
   "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.19"
+    },
     "onlyBuiltDependencies": [
       "esbuild",
       "sharp"
