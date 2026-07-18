@@ -1,0 +1,15 @@
+// Markdown lint policy for the repo. We keep the rules that catch real problems
+// (code fences need a language, headings increment sanely) and relax the ones
+// that fight our deliberately compact, token-efficient documentation style.
+{
+  "default": true,
+  // Long prose lines are intentional in our docs; wrapping is handled by the editor.
+  "MD013": false,
+  // Compact style: we do not force blank lines around every heading, list, or fence.
+  "MD022": false,
+  "MD031": false,
+  "MD032": false,
+  // The same subheading text (for example "Responsibilities") may appear under
+  // different sections across files.
+  "MD024": { "siblings_only": true },
+}

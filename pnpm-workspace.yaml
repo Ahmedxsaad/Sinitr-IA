@@ -1,0 +1,8 @@
+# pnpm workspace definition. Every app, service, and shared package is a
+# workspace member so they can depend on each other by name (for example
+# "@sinistria/contracts") without publishing to a registry.
+packages:
+  - 'apps/*'
+  - 'services/*'
+  - 'packages/*'
+  - 'tests/*'
