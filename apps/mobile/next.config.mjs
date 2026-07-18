@@ -4,8 +4,8 @@ const GATEWAY_URL = process.env.GATEWAY_URL ?? 'http://localhost:4000';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // The contracts package ships TypeScript source, so Next must transpile it.
-  transpilePackages: ['@sinistria/contracts'],
+  // Both contracts and ui ship TypeScript source, so Next must transpile them.
+  transpilePackages: ['@sinistria/contracts', '@sinistria/ui'],
   async rewrites() {
     return [{ source: '/api/:path*', destination: `${GATEWAY_URL}/api/:path*` }];
   },

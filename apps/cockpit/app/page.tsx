@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ClaimRoute, ClaimState, Confidence, MetricsResult } from '@sinistria/contracts';
+import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
 
 /** The compact summary shape the gateway returns for the queue. */
 interface ClaimSummary {
@@ -46,9 +47,15 @@ function MetricsStrip({ metrics }: { metrics: MetricsResult }) {
         <div className="stat-tile">
           <p className="stat-label">Routes</p>
           <p className="stat-value route-breakdown">
-            <span className="route fast_track">{metrics.routeCounts.fast_track} fast-track</span>
-            <span className="route review">{metrics.routeCounts.review} review</span>
-            <span className="route investigate">{metrics.routeCounts.investigate} investigate</span>
+            <span>
+              {metrics.routeCounts.fast_track} <RouteBadge route="fast_track" />
+            </span>
+            <span>
+              {metrics.routeCounts.review} <RouteBadge route="review" />
+            </span>
+            <span>
+              {metrics.routeCounts.investigate} <RouteBadge route="investigate" />
+            </span>
           </p>
         </div>
       </section>
@@ -117,14 +124,14 @@ export default function QueuePage() {
                   <td>{claim.state}</td>
                   <td>
                     {claim.route ? (
-                      <span className={`route ${claim.route}`}>
-                        {claim.route.replace('_', ' ')}
-                      </span>
+                      <RouteBadge route={claim.route} />
                     ) : (
                       <span className="muted">-</span>
                     )}
                   </td>
-                  <td>{claim.overallConfidence.label}</td>
+                  <td>
+                    <ConfidenceBadge confidence={claim.overallConfidence.label} />
+                  </td>
                 </tr>
               ))}
             </tbody>

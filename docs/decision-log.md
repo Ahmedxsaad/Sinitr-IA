@@ -438,3 +438,59 @@ Template:
   `scripts/smoke.sh` still passes unchanged (it submits its own honest claim
   under a fresh id alongside the ten seeded ones). Full verification
   (typecheck, lint, format, 134 tests, both app builds) is clean.
+
+## D-0018 - Scaffold packages/ui with two shared badge components, not a full design system
+
+- Date: 2026-07-18
+- Context: The backlog (B-6) asked to move shared colors, spacing, and
+  route/confidence badge styles into `packages/ui`, which until now held only
+  a README (no `package.json`, never a real workspace member). Auditing the
+  two apps' `globals.css` found the route badge existed only in cockpit's
+  stylesheet (`--green-900/700/500` were copy-pasted identically into both
+  files, `--amber`/`--red` existed only in cockpit's); mobile's demo result
+  showed its route in a hardcoded green regardless of actual route, so a
+  suspicious claim's `investigate` route rendered in the same color as an
+  honest claim's `fast_track`. Confidence had no badge at all in either app,
+  just plain text, in tension with the product guardrail that a confidence
+  label is always shown, never a naked score.
+- Options: (a) keep colors and badge CSS duplicated per app, just deduplicate
+  the literal hex values into a shared import, (b) build out `packages/ui` as
+  a fuller component library (buttons, cards, layout primitives) in this pass,
+  (c) scaffold `packages/ui` with exactly what the backlog named: shared color
+  and spacing tokens plus two components, `RouteBadge` and `ConfidenceBadge`,
+  that own the route/confidence color mapping so it cannot drift between apps
+  again.
+- Decision: (c). `packages/ui/src/tokens.css` holds the shared green/amber/red
+  scale, a small spacing scale, and the `.badge` rules (route and confidence
+  intentionally share one color language: green means trust it, amber means
+  check it, red means look closely). `RouteBadge` and `ConfidenceBadge` are
+  thin presentational components typed against `ClaimRoute` and
+  `ConfidenceLabel` from `@sinistria/contracts`. Both apps' `next.config.mjs`
+  add `@sinistria/ui` to `transpilePackages`; each app's own `globals.css`
+  keeps only its app-specific background/panel/text tokens (mobile stays dark
+  for roadside use, cockpit stays light for desk use) and now `@import`s the
+  shared tokens. Every route and confidence rendering in both apps (mobile's
+  demo result, the cockpit queue table, the cockpit claim detail page) was
+  switched to the shared components, including mobile's previously-hardcoded
+  green route text and the confidence label that had no badge anywhere.
+- Reason: Option (a) would not have fixed the actual bug (mobile's route
+  always rendering green) since the color-to-route mapping would still live
+  in two places. Option (b) is scope the backlog did not ask for and this
+  pass has no design brief for; a button and card audit is better done as its
+  own reviewable change. Option (c) is the smallest change that makes the
+  route/confidence-to-color mapping impossible to duplicate incorrectly again,
+  matching architecture.md's own description of this package.
+- Result: A Next-specific gotcha surfaced during the build (not the typecheck,
+  which passed immediately): `export * from './RouteBadge.js'` resolves fine
+  under `tsc` (matching every other package's `.js`-extension convention for
+  `.ts` files) but Next's webpack resolution for a transpiled package does not
+  map a `.js` specifier to a sibling `.tsx` file, only to `.ts`; the build
+  failed with `Module not found`. Fixed by re-exporting the two component
+  files without an extension. Full verification (typecheck, lint, format, 134
+  tests, both app builds) is clean. Visually verified by starting all six
+  services and both apps and driving them with Playwright: the honest demo
+  case shows a green `FAST TRACK` badge and a green `HIGH` confidence badge;
+  the suspicious demo case now shows a red `INVESTIGATE` badge and a red `LOW`
+  confidence badge (previously always green); the cockpit queue table and
+  claim detail page render the same badges for all ten seeded claims plus the
+  two just submitted, with no browser console errors.

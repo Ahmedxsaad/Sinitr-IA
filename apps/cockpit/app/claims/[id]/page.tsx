@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import type { AccidentEvidenceTwin, GraphView } from '@sinistria/contracts';
+import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
 
 /**
  * A small two-column layout for the relationship graph: the claim under
@@ -183,15 +184,11 @@ export default function ClaimDetailPage() {
         <a href="/">Back to queue</a>
       </p>
       <h1>
-        {twin.claimId}{' '}
-        {recommendation && (
-          <span className={`route ${recommendation.route}`}>
-            {recommendation.route.replace('_', ' ')}
-          </span>
-        )}
+        {twin.claimId} {recommendation && <RouteBadge route={recommendation.route} />}
       </h1>
       <p className="muted">
-        State: {twin.state} | Overall confidence: {twin.overallConfidence.label}
+        State: {twin.state} | Overall confidence:{' '}
+        <ConfidenceBadge confidence={twin.overallConfidence.label} />
       </p>
 
       <div className="card hierarchy">
@@ -201,8 +198,8 @@ export default function ClaimDetailPage() {
           {recommendation ? (
             <>
               <p>
-                Recommended route: <strong>{recommendation.route.replace('_', ' ')}</strong>{' '}
-                (confidence {recommendation.confidence.label})
+                Recommended route: <RouteBadge route={recommendation.route} /> (confidence{' '}
+                <ConfidenceBadge confidence={recommendation.confidence.label} />)
               </p>
               <ul>
                 {recommendation.reasons.map((reason) => (
