@@ -9,4 +9,4 @@ Shared React components and design tokens used by both `apps/mobile` and
 - `tokens.css`: the shared color and spacing tokens plus the badge styles.
   Import it once per app, alongside that app's own background/text tokens.
 
-Follows the shared rules in [../CLAUDE.md](../CLAUDE.md).
+Follows the monorepo's shared conventions (see [../../docs/conventions.md](../../docs/conventions.md)).

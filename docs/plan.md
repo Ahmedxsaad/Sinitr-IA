@@ -130,7 +130,6 @@ accuracy. See [conventions.md](conventions.md) for the language rules.
 
 ## 10. Governance
 
-- Rules for agents and contributors: [../CLAUDE.md](../CLAUDE.md).
 - Commits, branches, code style: [conventions.md](conventions.md).
 - Decisions with reasons and results: [decision-log.md](decision-log.md).
 - Proposed improvements: [improvements.md](improvements.md).

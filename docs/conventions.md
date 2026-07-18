@@ -1,7 +1,6 @@
 # Sinistr'IA - Conventions
 
-Process and style rules. The always-loaded summary is in
-[../CLAUDE.md](../CLAUDE.md); this file is the full reference.
+Process and style rules for anyone working in this repo.
 
 ## 1. Working agreement
 
@@ -80,25 +79,12 @@ docs(plan): record the honest-claim critical path
   with placeholder keys.
 - No API keys, tokens, or personal data in the repo or in commit history.
 
-## 8. Changelog format
-
-Every `CLAUDE.md` ends with a Changelog. Add one line per meaningful change:
-
-```text
-YYYY-MM-DD HH:MM TZ - author - what changed
-```
-
-- Author is the git handle of the person, or the agent acting on their behalf.
-- Newest entries at the bottom. Keep entries short.
-
-## 9. Decision-log format
+## 8. Decision-log format
 
 Record non-obvious choices in [decision-log.md](decision-log.md) with an id,
 date, context, the options considered, the decision, the reason, and the result
 once known.
 
-## 10. Documentation
+## 9. Documentation
 
-- Keep docs concise and non-overlapping. Link instead of repeating.
-- Per-part `CLAUDE.md` files add only part-specific rules. Global rules stay in
-  the root `CLAUDE.md`.
+Keep docs concise and non-overlapping. Link instead of repeating.
