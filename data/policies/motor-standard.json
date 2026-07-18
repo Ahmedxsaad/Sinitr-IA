@@ -1,0 +1,17 @@
+{
+  "policyId": "POL-DEMO-001",
+  "clauses": [
+    {
+      "clauseId": "COV-PD-1",
+      "title": "Property damage from collision",
+      "text": "Visible collision damage to the insured vehicle is covered under the property-damage guarantee.",
+      "kind": "coverage"
+    },
+    {
+      "clauseId": "EXC-HD-1",
+      "title": "Hidden or structural damage",
+      "text": "Severe or potentially structural damage requires expert inspection before settlement.",
+      "kind": "exclusion"
+    }
+  ]
+}

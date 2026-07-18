@@ -12,8 +12,9 @@ documentation, and the live local HTTP path.
 - `pnpm lint`: 12 lint-enabled projects passed. The three packages without a
   lint script are packages that contain no runtime source lint target.
 - `pnpm format:check`: passed for the complete repository.
-- `pnpm test`: 8 test-enabled projects passed, 113 tests passed, and the gateway
-  package correctly reported no test files.
+- `pnpm test`: 8 test-enabled projects passed, 121 tests passed (113 plus 8 new
+  fixture-manifest and golden-Twin tests, see D-0012), and the gateway package
+  correctly reported no test files.
 - `pnpm build`: both Next.js applications compiled and generated production
   routes successfully.
 - `bash scripts/smoke.sh`: passed over HTTP with all six backend services,

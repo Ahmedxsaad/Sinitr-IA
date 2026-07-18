@@ -1,0 +1,136 @@
+{
+  "claimId": "CLM-GOLDEN-SUSPICIOUS",
+  "correlationId": "corr-golden-suspicious",
+  "state": "recommended",
+  "locale": "derja",
+  "createdAt": "TIMESTAMP",
+  "updatedAt": "TIMESTAMP",
+  "structuredFacts": {
+    "claimantStatement": {
+      "value": "L'accident sar fel rond point, karhba darbitni fel arriere gauche. Personne blesse. Plaque 200 TUN 3020.",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.94 }
+    },
+    "occurredAt": {
+      "value": "TIMESTAMP",
+      "source": "metadata",
+      "confidence": { "label": "high", "score": 0.8 }
+    },
+    "location": {
+      "value": "rond point",
+      "source": "derived",
+      "confidence": { "label": "medium", "score": 0.7 }
+    },
+    "vehicles": [{ "plate": "200 TUN 3020", "isClaimant": true }]
+  },
+  "timeline": {
+    "summary": {
+      "value": "L'accident sar fel rond point, karhba darbitni fel arriere gauche. Personne blesse. Plaque 200 TUN 3020.",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.94 }
+    },
+    "sequence": [
+      "Customer reported the accident at the roadside",
+      "Impact recorded on the rear left of the claimant vehicle",
+      "Vehicles stopped and evidence capture began"
+    ],
+    "collisionDirection": {
+      "value": "rear_left",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.9 }
+    }
+  },
+  "damage": {
+    "regions": [
+      {
+        "area": "front_right",
+        "severity": "moderate",
+        "confidence": { "label": "high", "score": 0.88 }
+      }
+    ],
+    "severityRange": { "min": "moderate", "max": "moderate" }
+  },
+  "coverage": {
+    "policyId": "POL-DEMO-001",
+    "covered": true,
+    "matchedClauses": [
+      {
+        "clauseId": "COV-PD-1",
+        "title": "Property damage from collision",
+        "text": "Visible collision damage to the insured vehicle is covered under the property-damage guarantee.",
+        "kind": "coverage"
+      }
+    ],
+    "confidence": { "label": "high", "score": 0.9 }
+  },
+  "consistency": {
+    "checks": [
+      {
+        "id": "direction_vs_damage",
+        "description": "Stated collision direction matches the visible damage",
+        "status": "inconsistent",
+        "detail": "The reported rear left impact does not match where the visible damage is concentrated."
+      },
+      {
+        "id": "invoice_vs_damage",
+        "description": "Repair invoice matches the visible damage",
+        "status": "consistent",
+        "detail": "Invoice category \"engine\" is consistent with the visible damage."
+      }
+    ],
+    "contradictions": 1,
+    "benignGaps": 0
+  },
+  "completeness": { "score": 100, "missing": [] },
+  "anomalies": [
+    {
+      "type": "shared_garage_phone",
+      "description": "The garage phone number also appears in an earlier claim.",
+      "severity": "high",
+      "relatedClaimId": "CLM-2026-000188"
+    },
+    {
+      "type": "reused_image",
+      "description": "An uploaded image matches one submitted in an earlier claim.",
+      "severity": "high",
+      "relatedClaimId": "CLM-2026-000188"
+    }
+  ],
+  "recommendation": {
+    "route": "investigate",
+    "reasons": [
+      "Coverage confirmed via clause COV-PD-1.",
+      "Evidence completeness is 100%.",
+      "1 contradiction(s) detected between the story and the evidence.",
+      "2 relationship anomaly signal(s) present.",
+      "Visible damage severity ranges from moderate to moderate.",
+      "One or more trust signals require investigation before any decision."
+    ],
+    "escalationReasons": ["contradictory_evidence", "unusual_pattern", "low_confidence"],
+    "confidence": { "label": "low", "score": 0 },
+    "draftCustomerMessage": "Your accident report has been received and is being reviewed by our claims team. We may contact you for additional information."
+  },
+  "overallConfidence": { "label": "low", "score": 0 },
+  "audit": [
+    { "at": "TIMESTAMP", "actor": "gateway", "action": "claim.created" },
+    { "at": "TIMESTAMP", "actor": "intake", "action": "intake.structured" },
+    {
+      "at": "TIMESTAMP",
+      "actor": "evidence",
+      "action": "evidence.built",
+      "detail": "completeness 100%"
+    },
+    {
+      "at": "TIMESTAMP",
+      "actor": "graph",
+      "action": "graph.checked",
+      "detail": "2 anomaly signal(s)"
+    },
+    {
+      "at": "TIMESTAMP",
+      "actor": "claims",
+      "action": "claims.recommended",
+      "detail": "route=investigate"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "claimId": "CLM-GOLDEN-HONEST",
+  "correlationId": "corr-golden-honest",
+  "state": "recommended",
+  "locale": "derja",
+  "createdAt": "TIMESTAMP",
+  "updatedAt": "TIMESTAMP",
+  "structuredFacts": {
+    "claimantStatement": {
+      "value": "Kont wa9ef fel feu rouge, karhba jet men wara w darbitni fel porte arriere gauche. Personne blesse, famma ken degats. Plaque 125 TUN 4587.",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.94 }
+    },
+    "occurredAt": {
+      "value": "TIMESTAMP",
+      "source": "metadata",
+      "confidence": { "label": "high", "score": 0.8 }
+    },
+    "location": {
+      "value": "feu rouge",
+      "source": "derived",
+      "confidence": { "label": "medium", "score": 0.7 }
+    },
+    "vehicles": [{ "plate": "125 TUN 4587", "isClaimant": true }]
+  },
+  "timeline": {
+    "summary": {
+      "value": "Kont wa9ef fel feu rouge, karhba jet men wara w darbitni fel porte arriere gauche. Personne blesse, famma ken degats. Plaque 125 TUN 4587.",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.94 }
+    },
+    "sequence": [
+      "Customer reported the accident at the roadside",
+      "Impact recorded on the rear left of the claimant vehicle",
+      "Vehicles stopped and evidence capture began"
+    ],
+    "collisionDirection": {
+      "value": "rear_left",
+      "source": "voice",
+      "confidence": { "label": "high", "score": 0.9 }
+    }
+  },
+  "damage": {
+    "regions": [
+      {
+        "area": "rear_left",
+        "severity": "cosmetic",
+        "confidence": { "label": "high", "score": 0.88 }
+      }
+    ],
+    "severityRange": { "min": "cosmetic", "max": "cosmetic" }
+  },
+  "coverage": {
+    "policyId": "POL-DEMO-001",
+    "covered": true,
+    "matchedClauses": [
+      {
+        "clauseId": "COV-PD-1",
+        "title": "Property damage from collision",
+        "text": "Visible collision damage to the insured vehicle is covered under the property-damage guarantee.",
+        "kind": "coverage"
+      }
+    ],
+    "confidence": { "label": "high", "score": 0.9 }
+  },
+  "consistency": {
+    "checks": [
+      {
+        "id": "direction_vs_damage",
+        "description": "Stated collision direction matches the visible damage",
+        "status": "consistent",
+        "detail": "The reported rear left impact matches the visible damage location."
+      },
+      {
+        "id": "invoice_vs_damage",
+        "description": "Repair invoice matches the visible damage",
+        "status": "consistent",
+        "detail": "Invoice category \"body_panel\" is consistent with the visible damage."
+      }
+    ],
+    "contradictions": 0,
+    "benignGaps": 0
+  },
+  "completeness": { "score": 100, "missing": [] },
+  "anomalies": [],
+  "recommendation": {
+    "route": "fast_track",
+    "reasons": [
+      "Coverage confirmed via clause COV-PD-1.",
+      "Evidence completeness is 100%.",
+      "No contradictions between the story, the images, and the documents.",
+      "Visible damage severity ranges from cosmetic to cosmetic.",
+      "Low visible severity and consistent evidence support a fast-track review."
+    ],
+    "escalationReasons": [],
+    "confidence": { "label": "high", "score": 0.9 },
+    "draftCustomerMessage": "Your accident report has been received and prepared. Coverage is confirmed and your claim is on the fast-track review. An adjuster will confirm shortly."
+  },
+  "overallConfidence": { "label": "high", "score": 0.9 },
+  "audit": [
+    { "at": "TIMESTAMP", "actor": "gateway", "action": "claim.created" },
+    { "at": "TIMESTAMP", "actor": "intake", "action": "intake.structured" },
+    {
+      "at": "TIMESTAMP",
+      "actor": "evidence",
+      "action": "evidence.built",
+      "detail": "completeness 100%"
+    },
+    {
+      "at": "TIMESTAMP",
+      "actor": "graph",
+      "action": "graph.checked",
+      "detail": "0 anomaly signal(s)"
+    },
+    {
+      "at": "TIMESTAMP",
+      "actor": "claims",
+      "action": "claims.recommended",
+      "detail": "route=fast_track"
+    }
+  ]
+}

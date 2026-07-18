@@ -8,27 +8,28 @@ import {
   type DamageEvidence,
   type PolicyClause,
   makeConfidence,
+  policyFixtureSchema,
 } from '@sinistria/contracts';
+import policyFixture from '../../../../data/policies/motor-standard.json';
 
 /**
- * A minimal seed policy with explicit clauses. A real deployment would retrieve
- * the customer's actual policy; the shape stays the same.
+ * The seed policy, loaded from the canonical fixture in `data/policies` and
+ * validated at load so a malformed edit fails fast. A real deployment would
+ * retrieve the customer's actual policy; the shape stays the same.
  */
-const SEED_POLICY = {
-  policyId: 'POL-DEMO-001',
-  coverageClause: {
-    clauseId: 'COV-PD-1',
-    title: 'Property damage from collision',
-    text: 'Visible collision damage to the insured vehicle is covered under the property-damage guarantee.',
-    kind: 'coverage' as const,
-  },
-  hiddenDamageExclusion: {
-    clauseId: 'EXC-HD-1',
-    title: 'Hidden or structural damage',
-    text: 'Severe or potentially structural damage requires expert inspection before settlement.',
-    kind: 'exclusion' as const,
-  },
-};
+const seedPolicy = policyFixtureSchema.parse(policyFixture);
+
+/** The first clause of a kind, or an explicit failure: grounding cannot run without it. */
+function requireClause(kind: PolicyClause['kind']): PolicyClause {
+  const clause = seedPolicy.clauses.find((candidate) => candidate.kind === kind);
+  if (!clause) {
+    throw new Error(`Policy fixture ${seedPolicy.policyId} has no ${kind} clause.`);
+  }
+  return clause;
+}
+
+const coverageClause = requireClause('coverage');
+const hiddenDamageExclusion = requireClause('exclusion');
 
 /**
  * Ground coverage for a claim. Light visible collision damage is covered by the
@@ -37,11 +38,11 @@ const SEED_POLICY = {
  */
 export function groundCoverage(damage: DamageEvidence): CoverageEvidence {
   const isSevere = damage.severityRange.max === 'severe';
-  const matchedClauses: PolicyClause[] = [SEED_POLICY.coverageClause];
-  if (isSevere) matchedClauses.push(SEED_POLICY.hiddenDamageExclusion);
+  const matchedClauses: PolicyClause[] = [coverageClause];
+  if (isSevere) matchedClauses.push(hiddenDamageExclusion);
 
   return {
-    policyId: SEED_POLICY.policyId,
+    policyId: seedPolicy.policyId,
     covered: true, // property damage from collision is covered; severity affects the route, not coverage
     matchedClauses,
     confidence: makeConfidence(isSevere ? 0.6 : 0.9),

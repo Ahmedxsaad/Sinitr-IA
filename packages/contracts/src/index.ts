@@ -8,3 +8,4 @@ export * from './primitives.js';
 export * from './twin.js';
 export * from './dto.js';
 export * from './state-machine.js';
+export * from './fixtures.js';

@@ -21,7 +21,7 @@ into every log line and audit entry.
 Why: the audit trail, the cockpit "why" panel, and the live metrics all read
 from the same trace. Cost: small, lives in `packages/logger`.
 
-### 3. Golden-file tests for the two hero cases
+### 3. Golden-file tests for the two hero cases - done, see D-0012
 
 Store the expected Accident Evidence Twin for the honest case and the suspicious
 case as fixtures, and assert the pipeline reproduces them.
@@ -59,7 +59,7 @@ boundary. Reject or downgrade confidence on invalid output.
 Why: protects the Twin from malformed model responses and enforces the boundary.
 Cost: small, and it prevents a class of live-demo failures.
 
-### 8. Fixture manifest and validator for seed data
+### 8. Fixture manifest and validator for seed data - done, see D-0012
 
 A manifest listing each synthetic claim, policy, image, and graph node, plus a
 script that checks every fixture matches the contract schema.
