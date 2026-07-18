@@ -1,0 +1,13 @@
+{
+  "locale": "derja",
+  "narrative": "Kont wa9ef fel feu rouge, karhba jet men wara w darbitni fel porte arriere gauche. Personne blesse, famma ken degats. Plaque 125 TUN 4587.",
+  "injuryReported": false,
+  "collisionDirection": "rear_left",
+  "contact": { "phone": "+21620000001" },
+  "confirmed": true,
+  "mediaRefs": [
+    "seed:honest:vision:rear_left:cosmetic",
+    "seed:honest:doc:constat:standard",
+    "seed:honest:doc:invoice:body_panel"
+  ]
+}

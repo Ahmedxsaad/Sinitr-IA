@@ -1,0 +1,14 @@
+{
+  "locale": "derja",
+  "narrative": "L'accident sar fel rond point, karhba darbitni fel arriere gauche. Personne blesse. Plaque 200 TUN 3020.",
+  "injuryReported": false,
+  "collisionDirection": "rear_left",
+  "contact": { "phone": "+21620000055" },
+  "confirmed": true,
+  "garagePhone": "+21620000009",
+  "mediaRefs": [
+    "seed:suspicious:vision:front_right:moderate",
+    "seed:suspicious:doc:constat:standard",
+    "seed:suspicious:doc:invoice:engine"
+  ]
+}
