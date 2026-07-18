@@ -45,3 +45,6 @@ Thumbs.db
 
 # Local demo media that should not be versioned (keep curated demo set tracked)
 data/**/local/
+
+# Claude Code: commit shared project settings, keep personal overrides local
+.claude/settings.local.json
