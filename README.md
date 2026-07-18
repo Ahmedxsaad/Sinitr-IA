@@ -25,23 +25,66 @@ scripts/    developer and setup scripts
 
 ## Getting started
 
-Requirements: Node 20 or newer and pnpm. Then:
+Requirements: Node 20 or newer and pnpm.
 
 ```bash
 pnpm install            # install all workspace dependencies
 pnpm dev                # run every service and both apps in watch mode
 pnpm typecheck          # typecheck every package
 pnpm test               # run unit and end-to-end tests
-bash scripts/smoke.sh   # live HTTP smoke test of the honest-claim flow
 ```
 
 Local ports: gateway 4000, intake 4001, evidence 4002, claims 4003, graph 4004,
-notify 4005, mobile app 3000, cockpit app 3001. Copy `.env.example` to
-`.env.local` to override. Demo mode (deterministic mock adapters, no external
-calls) is on by default.
+notify 4005, mobile app 3000, cockpit app 3001.
 
 Try it: open the mobile app, press "Load demo case", submit, then open the
 cockpit to review the Evidence Twin and approve.
+
+## Run with Docker
+
+Requirements: Docker and Docker Compose. No Node or pnpm install needed on the
+host.
+
+```bash
+docker compose -f infra/compose/docker-compose.yml up --build
+```
+
+Brings up all six backend services (ports 4000-4005) and both frontends
+(mobile on 3000, cockpit on 3001) in demo mode. One Dockerfile per part lives
+in `infra/docker`; see [infra/README.md](infra/README.md).
+
+## Configuration
+
+Copy [.env.example](.env.example) to `.env.local` (gitignored) to override any
+default; `.env.local` is never committed.
+
+- `DEMO_MODE` (default `true`): deterministic mock adapters and seeded data,
+  no external network calls, no login required for the cockpit.
+- `ADJUSTER_TOKEN`: a bearer token guarding the cockpit's adjuster routes,
+  required only when `DEMO_MODE=false`.
+- `*_PORT` / `*_URL`: each service's local port and the URL the gateway uses
+  to reach it.
+- `SPEECH_API_KEY`, `VISION_API_KEY`, `LLM_API_KEY`, `SMS_API_KEY`: placeholders
+  for the real hosted providers each service's adapter interface is designed
+  to swap in (see [docs/architecture.md](docs/architecture.md)); left blank in
+  demo mode.
+
+## Testing
+
+```bash
+pnpm test               # unit and in-process end-to-end tests
+bash scripts/smoke.sh   # live HTTP smoke test of the honest-claim flow
+```
+
+See [docs/testing-and-security.md](docs/testing-and-security.md) for the full
+verification record.
+
+## Sample data
+
+`data/` holds ten synthetic motor claims (two polished hero cases plus eight
+covering the gates, scoring, and consistency checks), policy clauses, and a
+seeded relationship graph, each validated against its `packages/contracts`
+schema. See [data/README.md](data/README.md).
 
 ## Documentation
 
@@ -58,7 +101,14 @@ cockpit to review the Evidence Twin and approve.
 
 ## Status
 
-The vertical slice is live and verified. An honest claim flows from the mobile
-journey through all six services to a fast-track recommendation in the cockpit,
-and approval sends the customer notification. AI is mocked behind interfaces
-(swap real providers later). Next: real provider adapters and richer demo cases.
+The full vertical slice is live and verified end to end, including both hero
+cases: an honest claim fast-tracks, a suspicious one is routed to investigation
+with its relationship graph revealed. Ten synthetic claims exercise the safety
+and eligibility gates, completeness scoring, and consistency checks. The
+cockpit shows live metrics, and in demo mode the queue seeds itself with the
+full dataset on boot. Both apps share one dark, on-brand design system, with
+Arabic RTL support and a guided voice-capture flow on mobile. Docker Compose
+brings up the whole stack with one command. AI adapters and the claim store sit
+behind clean interfaces designed to swap in a real hosted provider and a
+persistent database (see [docs/architecture.md](docs/architecture.md)); the
+demo runs them deterministically so it never depends on a live network call.

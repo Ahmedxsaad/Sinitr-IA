@@ -1,8 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useParams } from 'next/navigation';
 import type { AccidentEvidenceTwin, GraphView } from '@sinistria/contracts';
+import { ConfidenceBadge, RouteBadge } from '@sinistria/ui';
+
+/** Sets the --rise-delay custom property the .rise animation reads, so a
+ * sequence of cards can stagger in one after another. */
+function riseDelay(seconds: number): CSSProperties {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
 
 /**
  * A small two-column layout for the relationship graph: the claim under
@@ -179,30 +187,26 @@ export default function ClaimDetailPage() {
 
   return (
     <main className="page">
-      <p>
-        <a href="/">Back to queue</a>
+      <p className="rise">
+        <a href="/">&larr; Back to queue</a>
       </p>
-      <h1>
-        {twin.claimId}{' '}
-        {recommendation && (
-          <span className={`route ${recommendation.route}`}>
-            {recommendation.route.replace('_', ' ')}
-          </span>
-        )}
+      <h1 className="rise" style={riseDelay(0.03)}>
+        {twin.claimId} {recommendation && <RouteBadge route={recommendation.route} />}
       </h1>
-      <p className="muted">
-        State: {twin.state} | Overall confidence: {twin.overallConfidence.label}
+      <p className="muted rise" style={riseDelay(0.05)}>
+        State: {twin.state} | Overall confidence:{' '}
+        <ConfidenceBadge confidence={twin.overallConfidence.label} />
       </p>
 
-      <div className="card hierarchy">
+      <div className="card hierarchy rise" style={riseDelay(0.1)}>
         {/* Top: the decision the machine prepared, owned by the human. */}
         <div className="tier">
           <h3>Decision</h3>
           {recommendation ? (
             <>
               <p>
-                Recommended route: <strong>{recommendation.route.replace('_', ' ')}</strong>{' '}
-                (confidence {recommendation.confidence.label})
+                Recommended route: <RouteBadge route={recommendation.route} /> (confidence{' '}
+                <ConfidenceBadge confidence={recommendation.confidence.label} />)
               </p>
               <ul>
                 {recommendation.reasons.map((reason) => (
@@ -285,7 +289,7 @@ export default function ClaimDetailPage() {
 
       {twin.graphView && <GraphReveal view={twin.graphView} />}
 
-      <div className="card">
+      <div className="card rise" style={riseDelay(0.18)}>
         <h3>Audit trail</h3>
         <ul>
           {twin.audit.map((entry, index) => (
