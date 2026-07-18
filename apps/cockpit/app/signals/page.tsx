@@ -1,7 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import type { SignalEvent, SignalRegion, SignalsResult } from '@sinistria/contracts';
+import { CriticalityBadge } from '@sinistria/ui';
+
+/** Sets the --rise-delay custom property the .rise animation reads, so a
+ * sequence of cards can stagger in one after another. */
+function riseDelay(seconds: number): CSSProperties {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
 
 const REGIONS: { id: SignalRegion; label: string }[] = [
   { id: 'tunisia', label: 'Tunisia' },
@@ -13,11 +21,11 @@ function formatDate(iso: string): string {
   return Number.isNaN(date.getTime()) ? iso : date.toLocaleString();
 }
 
-function SignalCard({ event }: { event: SignalEvent }) {
+function SignalCard({ event, delaySeconds }: { event: SignalEvent; delaySeconds: number }) {
   return (
-    <div className="card">
+    <div className="card rise" style={riseDelay(delaySeconds)}>
       <p>
-        <span className={`criticality ${event.criticality}`}>{event.criticality}</span>{' '}
+        <CriticalityBadge criticality={event.criticality} />{' '}
         {event.relevance.map((relevance) => (
           <span key={relevance} className="tag">
             {relevance}
@@ -57,16 +65,18 @@ export default function SignalsPage() {
 
   return (
     <main className="page">
-      <p>
-        <a href="/">Back to queue</a>
+      <p className="rise">
+        <a href="/">&larr; Back to queue</a>
       </p>
-      <h1>Situational signals</h1>
-      <p className="muted">
+      <h1 className="rise" style={riseDelay(0.03)}>
+        Situational signals
+      </h1>
+      <p className="muted rise" style={riseDelay(0.05)}>
         Regional events that may bear on motor claims. Awareness only: these are not linked to any
         claim and never drive a decision.
       </p>
 
-      <div className="tabs">
+      <div className="tabs rise" style={riseDelay(0.08)}>
         {REGIONS.map((option) => (
           <button
             key={option.id}
@@ -82,8 +92,8 @@ export default function SignalsPage() {
       {error && <p className="chip">{error}</p>}
 
       {result && result.events.length === 0 && <p className="muted">No signals for this region.</p>}
-      {result?.events.map((event) => (
-        <SignalCard key={event.id} event={event} />
+      {result?.events.map((event, index) => (
+        <SignalCard key={event.id} event={event} delaySeconds={0.1 + index * 0.06} />
       ))}
     </main>
   );

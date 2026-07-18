@@ -84,18 +84,28 @@ In demo mode, the gateway pre-runs the manifest claims at startup so the
 cockpit opens with a realistic queue instead of an empty one. Reuse the
 in-process pipeline; no HTTP self-calls.
 
-### B-6 UI polish pass
+### B-6 UI polish pass - done, see D-0018
 
 Move shared colors, spacing, and route/confidence badge styles into
 `packages/ui` and use them in both apps. Check the cockpit against the
 decision, why, proof hierarchy in [architecture.md](architecture.md) section 3.
 
+Scaffolded `packages/ui` for the first time (`RouteBadge`, `ConfidenceBadge`,
+shared tokens.css) rather than a fuller component library; caught mobile's
+route text always rendering green regardless of the actual route, and that
+confidence had no badge anywhere, both fixed by the shared components.
+
 ## P2 - stretch
 
-### B-7 Arabic RTL and accessibility (improvements P3.9)
+### B-7 Arabic RTL and accessibility (improvements P3.9) - done, see D-0019
 
 `dir="rtl"` for the Arabic locale in the mobile journey, screen-reader labels,
 and focus states.
+
+Arabic was unreachable from the UI (locale was hardcoded), so this also added
+the missing language switcher. Both option-group labels now use
+`role="group"` + `aria-labelledby` instead of a floating `<label>`, and every
+interactive element has an explicit `:focus-visible` style.
 
 ### B-8 One real provider adapter behind a flag
 
@@ -106,13 +116,13 @@ path depend on it.
 
 ## Bonus features (outside the P0-P2 list above)
 
-### B-9 Situational signals - done, see D-0018
+### B-9 Situational signals - done, see D-0022
 
 A standalone `services/signals` classifies regional news (floods, road
 incidents, outbreaks) with a criticality label, ported from a prior project's
 Python news-monitoring agent per the maintainer's request. Reached only
 through a new additive gateway route and its own cockpit page; never touches
-the claim pipeline or the Twin. See D-0018 for the full tradeoff, including
+the claim pipeline or the Twin. See D-0022 for the full tradeoff, including
 why `urgency_score` became a label and why `business_opportunity` was dropped.
 
 ### B-10 Per-claim event corroboration (a signals follow-up, not started)
@@ -121,7 +131,7 @@ Match a signal event's time and place against a specific claim's `occurredAt`
 and `location` (both already evidenced Twin fields), and surface the result as
 a fourth consistency check next to the existing story-vs-image and
 invoice-vs-damage checks. This is the deeper integration the maintainer
-considered and deferred when scoping B-9 (see D-0018, option c). It is a Twin
+considered and deferred when scoping B-9 (see D-0022, option c). It is a Twin
 schema change and a pipeline call, so it needs its own decision-log entry and
 should not be started without confirming the scope first, per the working
 agreement in [../CLAUDE.md](../CLAUDE.md).

@@ -41,4 +41,7 @@ decision.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Built the adjuster cockpit: queue, Evidence Twin review, and approve action.
 - 2026-07-18 13:20 CET - Claude - Added a live metrics strip (claims processed, average time to FNOL, average evidence completeness, route breakdown) above the queue table (D-0014).
 - 2026-07-18 14:10 CET - Claude - Added the relationship-graph reveal: a one-click inline-SVG panel on the claim detail page, shown when the claim has anomalies (D-0015).
-- 2026-07-18 15:00 CET - Claude - Added a standalone `/signals` page showing classified regional events for adjuster awareness. Not linked to any claim (D-0018).
+- 2026-07-18 15:00 CET - Claude - Added a standalone `/signals` page showing classified regional events for adjuster awareness. Not linked to any claim (D-0022).
+- 2026-07-18 16:20 CET - Claude - Adopted `@sinistria/ui`'s `RouteBadge` and `ConfidenceBadge` in the queue table and claim detail page, replacing the app-local route pill and the previously plain-text confidence label (D-0018).
+- 2026-07-18 18:10 CET - Claude - Moved to the shared dark cinematic language: a brand topbar with a live-status pill, glowing glass metric tiles with an animated count-up, and `next/font` typography, replacing the app's former light theme (D-0020).
+- 2026-07-18 19:10 CET - Claude - Rebuilt `/signals` on the shared `CriticalityBadge` and the `.rise` entrance-motion idiom, fixing criticality badges left colorless by the redesign's token rename (D-0022).

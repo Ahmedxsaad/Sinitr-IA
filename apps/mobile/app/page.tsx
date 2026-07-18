@@ -1,7 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 import type { AccidentEvidenceTwin, ImpactArea, Locale } from '@sinistria/contracts';
+import { BrandMark, ConfidenceBadge, RouteBadge } from '@sinistria/ui';
+
+/** Sets the --rise-delay custom property the .rise animation reads, so a
+ * sequence of cards can stagger in one after another. */
+function riseDelay(seconds: number): CSSProperties {
+  return { '--rise-delay': `${seconds}s` } as CSSProperties;
+}
 
 // Mirrors the ImpactArea vocabulary from the contract for the direction picker.
 const DIRECTIONS: ImpactArea[] = [
@@ -42,8 +50,28 @@ const SUSPICIOUS_DEMO = {
   evidence: { photo: true, constat: true, invoice: true },
 };
 
+const LOCALES: { value: Locale; label: string }[] = [
+  { value: 'derja', label: 'Derja' },
+  { value: 'fr', label: 'Français' },
+  { value: 'ar', label: 'العربية' },
+];
+
+/** "0:07" for a duration in seconds, "0:00" while metadata is not loaded yet. */
+function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
 export default function ReportPage() {
+  const [locale, setLocale] = useState<Locale>('derja');
   const [injuryReported, setInjuryReported] = useState<boolean | null>(null);
+  const [voiceState, setVoiceState] = useState<'idle' | 'playing' | 'revealed'>('idle');
+  const [elapsed, setElapsed] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const typewriterRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [narrative, setNarrative] = useState('');
   const [collisionDirection, setCollisionDirection] = useState<ImpactArea>('unknown');
   const [phone, setPhone] = useState('');
@@ -59,10 +87,42 @@ export default function ReportPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Types the transcript out a character at a time, as if it just arrived from
+  // the voice note, then hands the form to the rest of the guided journey.
+  function revealNarrative(fullText: string) {
+    if (typewriterRef.current) clearInterval(typewriterRef.current);
+    setNarrative('');
+    let index = 0;
+    typewriterRef.current = setInterval(() => {
+      index += 1;
+      setNarrative(fullText.slice(0, index));
+      if (index >= fullText.length) {
+        if (typewriterRef.current) clearInterval(typewriterRef.current);
+        setVoiceState('revealed');
+      }
+    }, 24);
+  }
+
+  function startVoiceCapture() {
+    setVoiceState('playing');
+    setNarrative('');
+    const audio = audioRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      void audio.play();
+    }
+  }
+
+  function skipVoiceCapture() {
+    setVoiceState('revealed');
+  }
+
   function loadHonestDemo() {
     setDemoCase('honest');
+    setLocale(HONEST_DEMO.locale);
     setInjuryReported(false);
-    setNarrative(HONEST_DEMO.narrative);
+    setVoiceState('idle');
+    setNarrative('');
     setCollisionDirection(HONEST_DEMO.collisionDirection);
     setPhone(HONEST_DEMO.phone);
     setGaragePhone('');
@@ -73,13 +133,22 @@ export default function ReportPage() {
 
   function loadSuspiciousDemo() {
     setDemoCase('suspicious');
+    setLocale(SUSPICIOUS_DEMO.locale);
     setInjuryReported(false);
+    setVoiceState('revealed');
     setNarrative(SUSPICIOUS_DEMO.narrative);
     setCollisionDirection(SUSPICIOUS_DEMO.collisionDirection);
     setPhone(SUSPICIOUS_DEMO.phone);
     setGaragePhone(SUSPICIOUS_DEMO.garagePhone);
     setEvidence(SUSPICIOUS_DEMO.evidence);
     setTwin(null);
+    setError(null);
+  }
+
+  function reportAnother() {
+    setTwin(null);
+    setVoiceState('idle');
+    setNarrative('');
     setError(null);
   }
 
@@ -111,7 +180,7 @@ export default function ReportPage() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          locale: 'derja',
+          locale,
           narrative,
           injuryReported,
           collisionDirection,
@@ -132,16 +201,55 @@ export default function ReportPage() {
     }
   }
 
+  const isRtl = locale === 'ar';
+
   return (
-    <main className="phone">
-      <h1>AMIN</h1>
-      <p className="assistant">I am here to help. Let us capture what happened, calmly.</p>
+    <main className="phone" dir={isRtl ? 'rtl' : undefined} lang={isRtl ? 'ar' : undefined}>
+      <header className="brand rise">
+        <span className="brand-mark">
+          <BrandMark size={26} />
+        </span>
+        <span>
+          <span className="brand-name">Sinistr&apos;IA</span>
+          <br />
+          <span className="brand-tag">AI accident witness</span>
+        </span>
+      </header>
+
+      <div className="hero rise" style={riseDelay(0.05)}>
+        <h1>Let us capture what happened.</h1>
+        <p className="assistant">
+          I am AMIN. Take a breath, then tell me in your own words. I will guide you, one step at a
+          time.
+        </p>
+      </div>
 
       {!twin && (
         <>
-          <div className="card">
-            <label>Is anyone injured or in danger?</label>
-            <div className="toggle">
+          <div className="card rise" style={riseDelay(0.1)}>
+            <span id="locale-label" className="group-label">
+              Language
+            </span>
+            <div className="toggle" role="group" aria-labelledby="locale-label">
+              {LOCALES.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className="secondary"
+                  aria-pressed={locale === option.value}
+                  onClick={() => setLocale(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="card rise" style={riseDelay(0.16)}>
+            <span id="safety-label" className="group-label">
+              Is anyone injured or in danger?
+            </span>
+            <div className="toggle" role="group" aria-labelledby="safety-label">
               <button
                 type="button"
                 className="secondary"
@@ -161,70 +269,80 @@ export default function ReportPage() {
             </div>
           </div>
 
-          <div className="card">
-            <label htmlFor="narrative">Tell me what happened (Derja or French)</label>
-            <textarea
-              id="narrative"
-              rows={4}
-              value={narrative}
-              onChange={(event) => setNarrative(event.target.value)}
-              placeholder="Kont wa9ef..."
-            />
-          </div>
+          <div className="card rise" style={riseDelay(0.22)}>
+            {voiceState !== 'revealed' && (
+              <span id="voice-label" className="group-label">
+                Tell me what happened
+              </span>
+            )}
 
-          <div className="card">
-            <label htmlFor="direction">Where was the impact?</label>
-            <select
-              id="direction"
-              value={collisionDirection}
-              onChange={(event) => setCollisionDirection(event.target.value as ImpactArea)}
-            >
-              {DIRECTIONS.map((direction) => (
-                <option key={direction} value={direction}>
-                  {direction.replace('_', ' ')}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="card">
-            <label>Evidence captured</label>
-            {(['photo', 'constat', 'invoice'] as const).map((key) => (
-              <div key={key}>
-                <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input
-                    type="checkbox"
-                    style={{ width: 'auto' }}
-                    checked={evidence[key]}
-                    onChange={(event) => setEvidence({ ...evidence, [key]: event.target.checked })}
-                  />
-                  {key === 'photo'
-                    ? 'Damage photo'
-                    : key === 'constat'
-                      ? 'Constat'
-                      : 'Repair invoice'}
-                </label>
+            {voiceState === 'idle' && (
+              <div className="voice-capture">
+                <button
+                  type="button"
+                  className="mic-button"
+                  aria-label="Record your voice"
+                  onClick={startVoiceCapture}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="9" y="2.5" width="6" height="11" rx="3" fill="currentColor" />
+                    <path
+                      d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18.5v3"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+                <p className="assistant">Tap to record your voice</p>
+                <button type="button" className="secondary small-link" onClick={skipVoiceCapture}>
+                  Type instead
+                </button>
               </div>
-            ))}
-          </div>
+            )}
 
-          <div className="card">
-            <label htmlFor="phone">Your phone number</label>
-            <input id="phone" value={phone} onChange={(event) => setPhone(event.target.value)} />
-            <label htmlFor="garage-phone">Garage phone (optional)</label>
-            <input
-              id="garage-phone"
-              value={garagePhone}
-              onChange={(event) => setGaragePhone(event.target.value)}
+            {voiceState === 'playing' && (
+              <div className="voice-capture" aria-live="polite">
+                <div className="waveform" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <p className="assistant">
+                  Listening... {formatTime(elapsed)} / {formatTime(duration)}
+                </p>
+              </div>
+            )}
+
+            {voiceState === 'revealed' && (
+              <>
+                <label htmlFor="narrative">Tell me what happened (Derja, French, or Arabic)</label>
+                <textarea
+                  id="narrative"
+                  rows={4}
+                  value={narrative}
+                  onChange={(event) => setNarrative(event.target.value)}
+                  placeholder="Kont wa9ef..."
+                />
+                <button type="button" className="secondary small-link" onClick={startVoiceCapture}>
+                  Replay voice note
+                </button>
+              </>
+            )}
+
+            <audio
+              ref={audioRef}
+              src="/audio/honest-demo.mp3"
+              preload="auto"
+              onEnded={() => revealNarrative(HONEST_DEMO.narrative)}
+              onTimeUpdate={(event) => setElapsed(event.currentTarget.currentTime)}
+              onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
             />
           </div>
 
-          {error && <p className="error">{error}</p>}
-
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" onClick={submit} disabled={submitting}>
-              {submitting ? 'Submitting...' : 'Submit report'}
-            </button>
+          <div className="demo-row">
             <button type="button" className="secondary" onClick={loadHonestDemo}>
               Load demo case
             </button>
@@ -232,14 +350,87 @@ export default function ReportPage() {
               Load suspicious demo
             </button>
           </div>
+
+          {voiceState === 'revealed' && (
+            <>
+              <div className="card">
+                <label htmlFor="direction">Where was the impact?</label>
+                <select
+                  id="direction"
+                  value={collisionDirection}
+                  onChange={(event) => setCollisionDirection(event.target.value as ImpactArea)}
+                >
+                  {DIRECTIONS.map((direction) => (
+                    <option key={direction} value={direction}>
+                      {direction.replace('_', ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="card">
+                <label>Evidence captured</label>
+                {(['photo', 'constat', 'invoice'] as const).map((key) => (
+                  <div key={key}>
+                    <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        style={{ width: 'auto' }}
+                        checked={evidence[key]}
+                        onChange={(event) =>
+                          setEvidence({ ...evidence, [key]: event.target.checked })
+                        }
+                      />
+                      {key === 'photo'
+                        ? 'Damage photo'
+                        : key === 'constat'
+                          ? 'Constat'
+                          : 'Repair invoice'}
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              <div className="card">
+                <label htmlFor="phone">Your phone number</label>
+                <input
+                  id="phone"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                />
+                <label htmlFor="garage-phone">Garage phone (optional)</label>
+                <input
+                  id="garage-phone"
+                  value={garagePhone}
+                  onChange={(event) => setGaragePhone(event.target.value)}
+                />
+              </div>
+
+              {error && <p className="error">{error}</p>}
+
+              <div className="actions">
+                <button type="button" onClick={submit} disabled={submitting}>
+                  {submitting ? 'Submitting...' : 'Submit report'}
+                </button>
+              </div>
+            </>
+          )}
         </>
       )}
 
       {twin && (
-        <div className="card result">
-          <p className="route">{twin.recommendation?.route.replace('_', ' ') ?? twin.state}</p>
+        <div className="card result rise">
+          <div className="result-headline">
+            {twin.recommendation ? (
+              <RouteBadge route={twin.recommendation.route} />
+            ) : (
+              <span className="muted">{twin.state}</span>
+            )}
+            <ConfidenceBadge confidence={twin.overallConfidence.label} />
+          </div>
           <p>
-            Claim <strong>{twin.claimId}</strong> was prepared. An adjuster owns the final decision.
+            Claim <strong className="claim-id">{twin.claimId}</strong> was prepared. An adjuster
+            owns the final decision.
           </p>
           {twin.completeness && (
             <>
@@ -252,7 +443,7 @@ export default function ReportPage() {
           {twin.recommendation && (
             <p className="assistant">{twin.recommendation.draftCustomerMessage}</p>
           )}
-          <button type="button" className="secondary" onClick={() => setTwin(null)}>
+          <button type="button" className="secondary" onClick={reportAnother}>
             Report another
           </button>
         </div>

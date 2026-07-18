@@ -1,0 +1,178 @@
+/**
+ * Sinistria design system: the deep, cinematic dark language shared by both
+ * frontends. Colors, gradients, glass surfaces, glow effects, motion, and the
+ * route/confidence badge styles all live here so mobile and cockpit read as one
+ * product. Each app layers only its own composition on top.
+ */
+:root {
+  /* Brand emerald scale. --green-500 is kept as the historical mid-tone so
+     existing references stay valid; --accent is the brighter signal green used
+     for glows and focus. */
+  --sinistria-green-900: #06251b;
+  --sinistria-green-700: #0f7a57;
+  --sinistria-green-500: #1f9d6b;
+  --sinistria-green-400: #2fd39a;
+  --sinistria-accent: #34e2a0;
+
+  --sinistria-amber: #f5b45a;
+  --sinistria-red: #ff6f5e;
+
+  /* Ink foundation and glass surfaces. */
+  --bg: #04120d;
+  --bg-deep: #030c09;
+  --text: #eaf6ef;
+  --text-strong: #ffffff;
+  --muted: #8ba79b;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --panel: rgba(255, 255, 255, 0.035);
+  --panel-2: rgba(255, 255, 255, 0.06);
+  --panel-hover: rgba(255, 255, 255, 0.08);
+
+  /* Spacing scale. */
+  --sinistria-space-1: 4px;
+  --sinistria-space-2: 8px;
+  --sinistria-space-3: 12px;
+  --sinistria-space-4: 16px;
+  --sinistria-space-5: 24px;
+  --sinistria-space-6: 36px;
+
+  /* Radii. */
+  --radius-card: 18px;
+  --radius-pill: 999px;
+  --radius-btn: 12px;
+
+  /* Elevation and glow. */
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 24px 48px -28px rgba(0, 0, 0, 0.85);
+  --shadow-lift: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -24px rgba(0, 0, 0, 0.9);
+  --glow-green: 0 0 40px rgba(52, 226, 160, 0.28);
+  --glow-amber: 0 0 34px rgba(245, 180, 90, 0.22);
+  --glow-red: 0 0 34px rgba(255, 111, 94, 0.24);
+
+  /* Typography. next/font sets --font-body / --font-display on <html>; the
+     fallbacks here keep the app readable if a font ever fails to load. */
+  --font-ui: var(
+    --font-body,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif
+  );
+  --font-head: var(--font-display, var(--font-body, ui-sans-serif, system-ui, sans-serif));
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* A fixed aurora backdrop: soft emerald blooms behind all content, giving the
+   dark base depth without competing with the foreground. Applied to <body>. */
+.aurora-bg {
+  position: relative;
+  background: var(--bg);
+}
+
+.aurora-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 44% at 12% -2%, rgba(31, 157, 107, 0.26), transparent 60%),
+    radial-gradient(46% 38% at 98% 8%, rgba(52, 226, 160, 0.14), transparent 58%),
+    radial-gradient(90% 60% at 50% 108%, rgba(8, 58, 42, 0.5), transparent 72%), var(--bg-deep);
+}
+
+/* Glass surface: the layered card used across both apps. */
+.glass {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+}
+
+/*
+ * Route and confidence share one color language: green means trust it, amber
+ * means check it, red means look closely. On the dark base they read as glowing
+ * status pills, each led by a lit dot in its own color.
+ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  flex: none;
+}
+
+.badge-route-fast_track,
+.badge-confidence-high,
+.badge-criticality-low {
+  background: rgba(52, 226, 160, 0.12);
+  color: #7dffc8;
+  border-color: rgba(52, 226, 160, 0.36);
+  box-shadow: 0 0 20px rgba(52, 226, 160, 0.18);
+}
+
+.badge-route-review,
+.badge-confidence-medium,
+.badge-criticality-medium {
+  background: rgba(245, 180, 90, 0.12);
+  color: #ffce88;
+  border-color: rgba(245, 180, 90, 0.36);
+  box-shadow: 0 0 20px rgba(245, 180, 90, 0.15);
+}
+
+.badge-route-investigate,
+.badge-confidence-low,
+.badge-criticality-high,
+.badge-criticality-critical {
+  background: rgba(255, 111, 94, 0.12);
+  color: #ff9f92;
+  border-color: rgba(255, 111, 94, 0.36);
+  box-shadow: 0 0 20px rgba(255, 111, 94, 0.16);
+}
+
+/* Shared entrance motion: content rises and fades in. Apps add a per-item
+   --rise-delay inline to stagger a sequence. */
+@keyframes sinistria-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: sinistria-rise 0.6s var(--ease-out) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}

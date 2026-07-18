@@ -439,7 +439,187 @@ Template:
   under a fresh id alongside the ten seeded ones). Full verification
   (typecheck, lint, format, 134 tests, both app builds) is clean.
 
-## D-0018 - Situational signals: a standalone service, not a pipeline input
+## D-0018 - Scaffold packages/ui with two shared badge components, not a full design system
+
+- Date: 2026-07-18
+- Context: The backlog (B-6) asked to move shared colors, spacing, and
+  route/confidence badge styles into `packages/ui`, which until now held only
+  a README (no `package.json`, never a real workspace member). Auditing the
+  two apps' `globals.css` found the route badge existed only in cockpit's
+  stylesheet (`--green-900/700/500` were copy-pasted identically into both
+  files, `--amber`/`--red` existed only in cockpit's); mobile's demo result
+  showed its route in a hardcoded green regardless of actual route, so a
+  suspicious claim's `investigate` route rendered in the same color as an
+  honest claim's `fast_track`. Confidence had no badge at all in either app,
+  just plain text, in tension with the product guardrail that a confidence
+  label is always shown, never a naked score.
+- Options: (a) keep colors and badge CSS duplicated per app, just deduplicate
+  the literal hex values into a shared import, (b) build out `packages/ui` as
+  a fuller component library (buttons, cards, layout primitives) in this pass,
+  (c) scaffold `packages/ui` with exactly what the backlog named: shared color
+  and spacing tokens plus two components, `RouteBadge` and `ConfidenceBadge`,
+  that own the route/confidence color mapping so it cannot drift between apps
+  again.
+- Decision: (c). `packages/ui/src/tokens.css` holds the shared green/amber/red
+  scale, a small spacing scale, and the `.badge` rules (route and confidence
+  intentionally share one color language: green means trust it, amber means
+  check it, red means look closely). `RouteBadge` and `ConfidenceBadge` are
+  thin presentational components typed against `ClaimRoute` and
+  `ConfidenceLabel` from `@sinistria/contracts`. Both apps' `next.config.mjs`
+  add `@sinistria/ui` to `transpilePackages`; each app's own `globals.css`
+  keeps only its app-specific background/panel/text tokens (mobile stays dark
+  for roadside use, cockpit stays light for desk use) and now `@import`s the
+  shared tokens. Every route and confidence rendering in both apps (mobile's
+  demo result, the cockpit queue table, the cockpit claim detail page) was
+  switched to the shared components, including mobile's previously-hardcoded
+  green route text and the confidence label that had no badge anywhere.
+- Reason: Option (a) would not have fixed the actual bug (mobile's route
+  always rendering green) since the color-to-route mapping would still live
+  in two places. Option (b) is scope the backlog did not ask for and this
+  pass has no design brief for; a button and card audit is better done as its
+  own reviewable change. Option (c) is the smallest change that makes the
+  route/confidence-to-color mapping impossible to duplicate incorrectly again,
+  matching architecture.md's own description of this package.
+- Result: A Next-specific gotcha surfaced during the build (not the typecheck,
+  which passed immediately): `export * from './RouteBadge.js'` resolves fine
+  under `tsc` (matching every other package's `.js`-extension convention for
+  `.ts` files) but Next's webpack resolution for a transpiled package does not
+  map a `.js` specifier to a sibling `.tsx` file, only to `.ts`; the build
+  failed with `Module not found`. Fixed by re-exporting the two component
+  files without an extension. Full verification (typecheck, lint, format, 134
+  tests, both app builds) is clean. Visually verified by starting all six
+  services and both apps and driving them with Playwright: the honest demo
+  case shows a green `FAST TRACK` badge and a green `HIGH` confidence badge;
+  the suspicious demo case now shows a red `INVESTIGATE` badge and a red `LOW`
+  confidence badge (previously always green); the cockpit queue table and
+  claim detail page render the same badges for all ten seeded claims plus the
+  two just submitted, with no browser console errors.
+
+## D-0019 - RTL and accessibility fixes scoped to the mobile journey only
+
+- Date: 2026-07-18
+- Context: The backlog (B-7, improvements P3.9) asked for `dir="rtl"` for the
+  Arabic locale, screen-reader labels, and focus states in the mobile
+  journey. Auditing the app found there was no locale switcher at all: the
+  submit payload hardcoded `locale: 'derja'` regardless of what a customer
+  actually spoke, so Arabic (`'ar'` in `localeSchema`) was unreachable from
+  the UI, and `<html lang="fr">` never changed. Two of the app's option
+  groups (the safety question, and now the new language choice) rendered a
+  bare `<label>` above a row of toggle buttons, which a screen reader does
+  not associate with the group the way `<label for>` associates with a
+  single control. There was no explicit keyboard-focus style anywhere; every
+  interactive element relied on each browser's own default outline.
+- Options: (a) add `dir="rtl"` only, treating the label/focus gaps as a
+  separate task, (b) do the minimum the backlog literally lists: a locale
+  switcher so Arabic is reachable and drives `dir`/`lang`, `role="group"` +
+  `aria-labelledby` on the two toggle groups, and an explicit
+  `:focus-visible` style, (c) additionally translate every UI string into
+  Arabic for a fully localized experience.
+- Decision: (b). Added a `locale` state (default `'derja'`, matching prior
+  behavior) with a three-way toggle (Derja, Français, العربية) using the same
+  button-group pattern already established for the safety question; selecting
+  it drives the submit payload's `locale` field, previously hardcoded. `<main
+dir={locale === 'ar' ? 'rtl' : undefined} lang={locale === 'ar' ? 'ar' :
+undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
+  (Latin-script Tunisian Arabic per the seeded narratives) and French as LTR.
+  Both toggle groups now use `role="group"` with `aria-labelledby` pointing at
+  a `.group-label` span (visually identical to the existing `label` style)
+  instead of a floating, unassociated `<label>`. Added one
+  `:focus-visible` rule (green outline, matching the existing `aria-pressed`
+  indicator color) covering every button, input, textarea, and select.
+- Reason: Option (a) alone would still leave Arabic unreachable, since the
+  actual product gap was that no path existed to select it, not that
+  `dir="rtl"` was missing given a locale that could never be chosen. Option
+  (c) is full i18n, a much larger and separately reviewable project the
+  backlog does not ask for (improvements.md scopes this item to "front-end
+  only" RTL and screen-reader labels, not translated copy); the visible
+  strings stay in English/French as before.
+- Result: No custom CSS was needed for the mirroring itself: plain flexbox
+  under `dir="rtl"` reverses button order and block-level fill bars
+  (`.meter > span`) automatically. Verified live with Playwright against the
+  built app: selecting العربية sets `dir="rtl"` and `lang="ar"` on the form
+  container (confirmed by reading the attributes back), the whole form
+  mirrors correctly (heading, text alignment, and the three-button toggle
+  order all flip), and `Tab` produces a clearly visible focus ring on the
+  next control. Full verification (typecheck, lint, format, 134 tests, both
+  app builds) is clean.
+
+## D-0020 - Both apps move to one dark, cinematic design language
+
+- Date: 2026-07-18
+- Context: The two apps had drifted into different visual registers (mobile
+  dark for roadside use, cockpit light for desk use, per D-0018) and both
+  used only system fonts and flat surfaces. Asked for a stage-demo-ready,
+  premium redesign across both apps, sharing one identity rather than each
+  app inventing its own.
+- Options: (a) keep cockpit light and only polish mobile, (b) a shared dark,
+  glass-and-glow cinematic language for both apps (deep emerald aurora
+  background, glass cards, glowing status badges, `next/font` display and
+  body faces, a brand mark, staggered entrance motion), (c) a light,
+  restrained corporate look for both apps.
+- Decision: (b). `packages/ui/src/tokens.css` now owns the entire shared
+  foundation, not just badge colors: the ink and glass surface tokens
+  (`--bg`, `--panel`, `--text`, `--muted`, `--line`, previously duplicated
+  per app per D-0018) moved here, plus gradients, glow shadows, a spacing and
+  radius scale, and a shared `.rise` entrance-animation utility. Added
+  `BrandMark`, an inline SVG lens/eye glyph, as a third shared component
+  alongside `RouteBadge`/`ConfidenceBadge`. Both apps' badges gained a lit
+  status dot and a colored glow matching their route/confidence color.
+  `next/font/google` (Space Grotesk for headings, Inter for body) is wired
+  into both `layout.tsx` files via CSS variables, so the font files are
+  self-hosted in the build output and the demo stays offline-safe. Cockpit's
+  queue gained an animated count-up on its metric tiles (`useCountUp`, a
+  small `requestAnimationFrame` easing hook, presentational only, keyed off
+  the metric value so a re-poll of the same number does not replay it).
+- Reason: A shared foundation token file, not per-app duplication, is what
+  keeps mobile and cockpit reading as one product as more polish gets added;
+  D-0018 already duplicated the ink tokens once and that was the seam most
+  likely to drift further. `next/font` was chosen over a CDN `<link>` for
+  fonts specifically because the offline-first demo requirement (D-0016,
+  `.env.example`'s `DEMO_MODE`) rules out a runtime fetch to Google's font
+  CDN; `next/font` downloads and self-hosts at build time instead.
+- Result: Full verification (typecheck, lint, format, 134 tests, both app
+  builds) is clean. Verified live with Playwright across the full stack (all
+  six services plus both apps): the honest demo case renders a glowing green
+  `FAST TRACK` badge, the suspicious case a glowing red `INVESTIGATE` badge,
+  Arabic RTL still mirrors correctly under the new layout, the cockpit queue's
+  metric tiles count up on load, and the relationship graph reveal renders
+  with glowing nodes against the dark background. No console errors in any
+  captured screenshot. `bash scripts/smoke.sh` still passes unchanged.
+
+## D-0021 - Hand-authored SVG diagrams instead of mermaid-cli output
+
+- Date: 2026-07-18
+- Context: Needed a system architecture diagram and a request-flow diagram for
+  external technical documentation (a submission data room), on brand, as
+  portable standalone SVG files.
+- Options: (a) `mermaid-cli` with a custom theme and embedded fonts, (b)
+  hand-authored SVG (plain shapes, text, and paths generated by a small
+  Python script) with the same embedded fonts.
+- Decision: (b). `mermaid-cli`'s `htmlLabels: true` mode (needed for bold text
+  and line breaks in labels) renders labels via `<foreignObject>`, which many
+  real-world SVG consumers (older PDF converters, some Office embedding
+  paths, `librsvg`-based tools) do not render at all; `htmlLabels: false` gives
+  portable plain `<text>`, but that mode's automatic node sizing clipped text
+  and dropped markdown bold formatting. Two diagrams do not justify continuing
+  to fight the auto-layout engine for exact control. `docs/diagrams/*.svg` are
+  generated by throwaway scripts (not committed) that place plain `<rect>`,
+  `<text>`, and `<path>` elements at explicit coordinates and inline the
+  brand's actual fonts (Space Grotesk, Inter) as base64 `@font-face` rules, so
+  the SVG is self-contained and renders identically everywhere.
+- Reason: For a one-time, small set of diagrams, explicit coordinates are more
+  reliable than debugging an auto-layout tool's text-measurement edge cases,
+  and guaranteed `<text>`-only output is the safer choice for a document meant
+  to be embedded in a data room submission of unknown tooling.
+- Result: `docs/diagrams/architecture.svg` (full system, labeled with the
+  production-target integrations: hosted speech/vision/LLM providers behind
+  the existing adapter interfaces, and a persistent store behind the existing
+  `ClaimStore` seam) and `docs/diagrams/dataflow.svg` (the six-step honest-claim
+  journey), both referenced from `docs/architecture.md`. Verified by rendering
+  in a real browser (Chromium via Playwright); no text clipping, all fonts
+  render as embedded.
+
+## D-0022 - Situational signals: a standalone service, not a pipeline input
 
 - Date: 2026-07-18
 - Context: The maintainer had built a "critical news agent" for a prior
@@ -449,8 +629,8 @@ Template:
   `urgency_score` and a `business_opportunity` for insurance executives. The
   ask was to add "the news stuff" to Sinistr'IA as an extra feature without
   touching the existing claim flow. Built on a separate branch from B-4
-  (Docker) and B-5 (seed queue), so numbered D-0018 to avoid colliding with
-  D-0016 and D-0017 once all three merge, the same pattern D-0014 used
+  (Docker) and B-5 (seed queue), so numbered D-0022 to avoid colliding with
+  D-0016 through D-0021 once everything merges, the same pattern D-0014 used
   against D-0013.
 - Options: (a) reuse the Python agent close to verbatim as a new Python
   service, (b) port the real logic to TypeScript as a new standalone service
@@ -504,4 +684,18 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   an optional, additive feed must never block the gateway's own health.
   Verified with a live `docker build` and `docker run`: the image builds,
   `/health` answers, and `/signals?region=tunisia` returns 4 classified
-  events.
+  events. Signals was also built parallel to D-0018 through D-0021 (shared
+  badges, mobile RTL, the cinematic redesign, and the architecture diagrams),
+  so the `/signals` page's original plain CSS (`--red`, `--amber`,
+  `--green-700`) no longer matched the redesign's renamed tokens
+  (`--sinistria-red`, and so on) and would have rendered every criticality
+  badge colorless. Fixed when resolving this merge: added
+  `badge-criticality-{low,medium,high,critical}` to
+  `packages/ui/src/tokens.css`, joining the existing color tiers
+  `badge-route-*` and `badge-confidence-*` share (green/amber/red, three tiers
+  for four criticality levels, high and critical both read as the same red),
+  plus a `CriticalityBadge` component so the signals page renders through the
+  same shared component pattern as `RouteBadge` and `ConfidenceBadge` rather
+  than a one-off className. Verified with a headless-browser screenshot of the
+  live page; the badges glow the correct color with the same lit-dot marker as
+  every other badge in the app.

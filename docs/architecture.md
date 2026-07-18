@@ -3,6 +3,8 @@
 How the repo is structured and how the parts talk to each other. For scope and
 roadmap see [plan.md](plan.md).
 
+![System architecture](diagrams/architecture.svg)
+
 ## 1. Principles
 
 - One shared contract. The Accident Evidence Twin lives in `packages/contracts`
@@ -109,7 +111,7 @@ and an `AGENT.md` symlink to it. See [conventions.md](conventions.md).
   additive `GET /api/signals` read-through and shown on its own cockpit page
   (`/signals`). Never called from `runClaimPipeline`, never reads or writes an
   Accident Evidence Twin, and shares no code with the graph service. See
-  decision D-0018. Matching an event to a specific claim's time and place is a
+  decision D-0022. Matching an event to a specific claim's time and place is a
   deliberate follow-up, not built here (see [backlog.md](backlog.md)).
 
 ## 4. The Accident Evidence Twin
@@ -129,6 +131,8 @@ Outputs a route (fast-track, human clarification, investigation), a draft
 customer communication, and a full audit trail.
 
 ## 5. Request path (honest claim)
+
+![The honest-claim journey](diagrams/dataflow.svg)
 
 ```text
 mobile

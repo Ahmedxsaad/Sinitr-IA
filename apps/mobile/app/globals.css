@@ -1,12 +1,4 @@
-:root {
-  --green-900: #0b3d2e;
-  --green-700: #14634a;
-  --green-500: #1f9d6b;
-  --bg: #0b1f18;
-  --panel: #10362a;
-  --text: #eaf3ee;
-  --muted: #a9c4b8;
-}
+@import '@sinistria/ui/tokens.css';
 
 * {
   box-sizing: border-box;
@@ -14,113 +6,410 @@
 
 body {
   margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    sans-serif;
-  background: var(--bg);
+  min-height: 100vh;
+  font-family: var(--font-ui);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .phone {
-  max-width: 460px;
-  margin: 24px auto;
-  padding: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 22px 20px 48px;
 }
 
-.card {
-  background: var(--panel);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 14px;
+/* Brand row and the AMIN greeting. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 26px;
 }
 
-h1 {
-  font-size: 22px;
-  margin: 0 0 4px;
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--glow-green);
+}
+
+.brand-name {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+  line-height: 1.1;
+}
+
+.brand-tag {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sinistria-green-400);
+}
+
+.hero {
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  color: var(--text-strong);
 }
 
 .assistant {
   color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 16px;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 16px;
 }
 
-label {
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(16px) saturate(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+
+label,
+.group-label {
   display: block;
-  font-size: 13px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 textarea,
 input,
 select {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: #0d2a20;
+  padding: 12px 13px;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
   color: var(--text);
   font: inherit;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
+textarea::placeholder,
+input::placeholder {
+  color: rgba(139, 167, 155, 0.6);
+}
+
+select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size:
+    5px 5px,
+    5px 5px;
+  background-repeat: no-repeat;
+}
+
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  accent-color: var(--sinistria-accent);
+}
+
+/* Segmented toggle: a glass track holding pill options. */
 .toggle {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
 }
 
 .toggle button {
   flex: 1;
+  padding: 9px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: none;
+  transition:
+    background 0.2s var(--ease-out),
+    color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out);
+}
+
+.toggle button[aria-pressed='true'] {
+  background: linear-gradient(180deg, var(--sinistria-green-400), var(--sinistria-green-700));
+  color: #04170f;
+  box-shadow: var(--glow-green);
 }
 
 button {
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   border: 1px solid transparent;
-  padding: 10px 14px;
+  padding: 13px 18px;
   font: inherit;
-  background: var(--green-500);
+  font-weight: 700;
+  background: linear-gradient(180deg, var(--sinistria-green-400), var(--sinistria-green-700));
   color: #04170f;
-  font-weight: 600;
+  box-shadow: var(--glow-green);
+  transition:
+    transform 0.16s var(--ease-out),
+    box-shadow 0.16s var(--ease-out),
+    filter 0.16s var(--ease-out);
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
 }
 
 button.secondary {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--panel-2);
+  border-color: var(--line);
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: none;
 }
 
-button[aria-pressed='true'] {
-  outline: 2px solid var(--green-500);
+button.secondary:hover {
+  background: var(--panel-hover);
+  filter: none;
 }
 
-.result .route {
-  font-size: 18px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--green-500);
+/* Consistent, visible keyboard focus ring across every control. */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--sinistria-accent);
+  outline-offset: 2px;
+  border-color: var(--sinistria-accent);
+  box-shadow: var(--glow-green);
+}
+
+/* Voice capture: the hero moment of the journey. */
+.voice-capture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 6px;
+}
+
+.voice-capture .assistant {
+  margin: 0;
+}
+
+.mic-button {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 26px;
+  color: #04170f;
+  background: radial-gradient(
+    circle at 35% 30%,
+    var(--sinistria-green-400),
+    var(--sinistria-green-700)
+  );
+  box-shadow: var(--glow-green);
+}
+
+/* Breathing pulse rings around the idle mic, so it invites a tap. */
+.mic-button::before,
+.mic-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--sinistria-accent);
+  animation: mic-pulse 2.4s var(--ease-out) infinite;
+}
+
+.mic-button::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes mic-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.small-link {
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: transparent;
+  border-color: transparent;
+  color: var(--sinistria-green-400);
+  box-shadow: none;
+}
+
+.small-link:hover {
+  filter: none;
+  color: var(--sinistria-accent);
+}
+
+/* Live equalizer while the voice note plays. */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 48px;
+}
+
+.waveform span {
+  display: block;
+  width: 5px;
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--sinistria-accent), var(--sinistria-green-700));
+  box-shadow: 0 0 12px rgba(52, 226, 160, 0.4);
+  animation: voice-wave 0.9s ease-in-out infinite;
+}
+
+.waveform span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.waveform span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+.waveform span:nth-child(4) {
+  animation-delay: 0.36s;
+}
+.waveform span:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+@keyframes voice-wave {
+  0%,
+  100% {
+    height: 10px;
+  }
+  50% {
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waveform span {
+    animation: none;
+    height: 24px;
+  }
+  .mic-button::before,
+  .mic-button::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Result hero: the calm, confident close of the journey. */
+.result {
+  border-color: rgba(52, 226, 160, 0.25);
+  box-shadow: var(--shadow-lift), var(--glow-green);
+}
+
+.result-headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.result .badge {
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.claim-id {
+  font-family: var(--font-head);
+  color: var(--text-strong);
+  letter-spacing: 0.01em;
 }
 
 .meter {
-  height: 8px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  margin-top: 6px;
+  margin-top: 8px;
+  border: 1px solid var(--line);
 }
 
 .meter > span {
   display: block;
   height: 100%;
-  background: var(--green-500);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--sinistria-green-700), var(--sinistria-accent));
+  box-shadow: 0 0 16px rgba(52, 226, 160, 0.5);
+  transition: width 0.9s var(--ease-out);
 }
 
 .error {
   color: #ffb4a2;
+  font-size: 14px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.demo-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
 }
