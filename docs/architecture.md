@@ -3,6 +3,8 @@
 How the repo is structured and how the parts talk to each other. For scope and
 roadmap see [plan.md](plan.md).
 
+![System architecture](diagrams/architecture.svg)
+
 ## 1. Principles
 
 - One shared contract. The Accident Evidence Twin lives in `packages/contracts`
@@ -117,6 +119,8 @@ Outputs a route (fast-track, human clarification, investigation), a draft
 customer communication, and a full audit trail.
 
 ## 5. Request path (honest claim)
+
+![The honest-claim journey](diagrams/dataflow.svg)
 
 ```text
 mobile
