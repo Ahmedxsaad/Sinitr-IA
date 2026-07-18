@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "API gateway: single entry point, claim orchestration, in-memory demo store.",
+  "description": "API gateway: single entry point, claim orchestration, SQLite-backed claim store.",
   "exports": {
     "./core": {
       "types": "./src/core/index.ts",
@@ -22,9 +22,11 @@
     "@sinistria/contracts": "workspace:*",
     "@sinistria/logger": "workspace:*",
     "@sinistria/service-kit": "workspace:*",
+    "better-sqlite3": "^12.11.1",
     "fastify": "^5.2.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

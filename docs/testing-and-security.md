@@ -60,13 +60,15 @@ before exposing the gateway to real users:
 - The gateway has a temporary shared bearer-token guard for adjuster queue,
   detail, and decision routes when `DEMO_MODE=false`. It still needs an identity
   provider and per-user roles before production use.
-- The demo uses an in-memory claim store. Production persistence must provide
-  access control, encryption, retention, and a recovery path for notification
-  failures.
+- The gateway's claim store is a local SQLite file (see D-0028): claims survive
+  a restart, but the file itself has no access control, encryption at rest,
+  retention policy, or backup, and there is still no recovery path for a
+  failed notification.
 - Internal services listen on all interfaces for local orchestration. Production
   networking must keep them private and allow only the gateway to reach them.
-- The mock speech, vision, OCR, and SMS adapters are deterministic fixtures, not
-  production provider integrations. Provider credentials belong only in the
-  deployment secret manager.
+- Intake's narrative extraction calls a real Gemini API when `DEMO_MODE=false`
+  (D-0028); the vision, OCR, and SMS adapters are still deterministic fixtures,
+  not production provider integrations. Provider credentials belong only in
+  the deployment secret manager.
 - Browser-level accessibility, Arabic RTL behavior, and real-provider contract
   tests remain follow-up work.

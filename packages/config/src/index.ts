@@ -36,6 +36,10 @@ const envSchema = z
     GEMINI_API_KEY: z.string().min(1).optional(),
     GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
 
+    // Where the gateway's SQLite claim store keeps its file. Optional: the
+    // gateway falls back to a sensible repo-relative path when unset.
+    DATABASE_PATH: z.string().min(1).optional(),
+
     GATEWAY_PORT: z.coerce.number().int().positive().default(4000),
     INTAKE_PORT: z.coerce.number().int().positive().default(4001),
     EVIDENCE_PORT: z.coerce.number().int().positive().default(4002),
