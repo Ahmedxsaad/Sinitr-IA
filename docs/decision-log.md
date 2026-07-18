@@ -884,6 +884,50 @@ africa}.json` are seeded fixtures (synthetic, clearly labelled test URLs).
   confidence clamping, and both HTTP-error and empty-content failure paths).
   149 tests pass repo-wide (up from 142). Full verification (typecheck,
   lint, format, both app builds, `pnpm audit --prod`, and a live
-  `scripts/smoke.sh` run over real HTTP) is clean. Not yet exercised against a real Gemini call in this environment
-  (no live network access here); the maintainer will verify with their own
-  key by setting `DEMO_MODE=false` and `GEMINI_API_KEY` in `.env.local`.
+  `scripts/smoke.sh` run over real HTTP) is clean. Not yet exercised
+  against a real Gemini call in this environment (no live network access
+  here); the maintainer will verify with their own key by setting
+  `DEMO_MODE=false` and `GEMINI_API_KEY` in `.env.local`.
+
+## D-0029 - Gateway claim store: SQLite file, not a hosted database
+
+- Date: 2026-07-18
+- Context: The claim store (D-0007) was an in-memory `Map`, explicitly scoped
+  to the offline demo slice with a note that production needs persistence.
+  The maintainer asked for a real database next, after the Gemini work.
+- Options: (a) a hosted database (Postgres, etc.) reached over the network,
+  (b) a local SQLite file via `better-sqlite3`, (c) a simple JSON file
+  rewritten on every save.
+- Decision: (b). `ClaimStore` (`services/gateway/src/core/store.ts`) keeps
+  its exact public shape (`save`/`get`/`list`), now backed by a `claims`
+  table (`claim_id` primary key, the Twin stored as a JSON column, the
+  contact phone, `updated_at`) in a SQLite file at `data/local/claims.db`
+  by default (already covered by the existing `data/**/local/` gitignore
+  rule), overridable via a new `DATABASE_PATH` in `packages/config`. Every
+  read runs the stored JSON back through `accidentEvidenceTwinSchema.parse`,
+  so a hand-edited or corrupted row fails loudly instead of silently
+  returning a malformed Twin. `list()` orders by SQLite's own `rowid`,
+  matching the `Map`'s insertion-order iteration it replaced. The gateway
+  registers a `SIGTERM`/`SIGINT` handler that closes the database
+  (synchronous in `better-sqlite3`, so it always finishes before
+  `service-kit`'s own shutdown handler exits the process).
+- Reason: A hosted database is real infrastructure this offline-first,
+  single-command-Docker-Compose demo does not need and was never asked for;
+  it would add a service dependency (and a network round trip) for a
+  single-table claim store. A JSON file rewritten whole on every save gets
+  slower and riskier (a crash mid-write can corrupt the entire file) as the
+  claim count grows, with no real advantage over SQLite's transactional
+  writes. SQLite is a genuine persistent database, needs no separate
+  process, and keeps the existing `ServiceClients`-free, no-infrastructure
+  local dev story intact. `better-sqlite3`'s synchronous API also means the
+  store's public interface did not need to become async, so no caller
+  (`routes/claims.ts`, `routes/metrics.ts`, `core/seed.ts`) changed at all.
+- Result: 5 new tests in `services/gateway/src/core/store.test.ts`,
+  including one that opens two separate `ClaimStore` instances against the
+  same file to prove data survives a restart, not just object lifetime.
+  154 tests pass repo-wide. Verified live, beyond the unit tests: submitted
+  the honest claim over real HTTP, confirmed `data/local/claims.db` was
+  created, killed only the gateway process (the other five services kept
+  running), restarted just the gateway, and fetched the same claim id back
+  with its full Twin intact. Full verification (typecheck, lint, format,
+  both app builds, `pnpm audit --prod`) is clean.

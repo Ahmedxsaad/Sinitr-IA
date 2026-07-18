@@ -85,11 +85,12 @@ routes the moment `DEMO_MODE=false`, see [Configuration](#configuration).
    then open the honest one and approve it, this sends the customer
    notification.
 
-Every AI adapter (speech, vision, language) and the claim store sit behind a
-stable interface designed to swap in a real hosted provider and a persistent
-database (see [docs/architecture.md](docs/architecture.md) section 8); the
-demo runs them deterministically so the walkthrough above never depends on a
-live network call or a seeded account.
+The claim store is a real SQLite database (claims survive a restart); every
+AI adapter sits behind a stable interface designed to swap in a real hosted
+provider, and intake's narrative extraction already does when `DEMO_MODE=false`
+(see [docs/architecture.md](docs/architecture.md) section 8). The demo runs
+everything deterministically by default, so the walkthrough above never
+depends on a live network call or a seeded account.
 
 ## Configuration
 
@@ -170,7 +171,9 @@ and eligibility gates, completeness scoring, and consistency checks. The
 cockpit shows live metrics, and in demo mode the queue seeds itself with the
 full dataset on boot. Both apps share one dark, on-brand design system, with
 Arabic RTL support and a guided voice-capture flow on mobile. Docker Compose
-brings up the whole stack with one command. AI adapters and the claim store sit
-behind clean interfaces designed to swap in a real hosted provider and a
-persistent database (see [docs/architecture.md](docs/architecture.md)); the
-demo runs them deterministically so it never depends on a live network call.
+brings up the whole stack with one command. The claim store is a real SQLite
+database, and intake's narrative extraction calls a real Gemini API when
+configured; every other AI adapter sits behind a clean interface designed to
+swap in a real hosted provider the same way (see
+[docs/architecture.md](docs/architecture.md)). The demo runs everything
+deterministically by default, so it never depends on a live network call.

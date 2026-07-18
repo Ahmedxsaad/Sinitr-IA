@@ -1,7 +1,7 @@
 /**
  * The gateway's public API for the frontends. It is the only entry point the
  * mobile app and cockpit talk to. It validates input, orchestrates the pipeline,
- * and reads or updates the in-memory demo store.
+ * and reads or updates the persistent claim store.
  */
 import { randomUUID } from 'node:crypto';
 import { adjusterDecisionRequestSchema, createClaimRequestSchema } from '@sinistria/contracts';
