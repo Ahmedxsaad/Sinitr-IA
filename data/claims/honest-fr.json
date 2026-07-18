@@ -1,0 +1,13 @@
+{
+  "locale": "fr",
+  "narrative": "J'etais a l'arret au feu rouge, une voiture m'a percute a l'arriere gauche. Personne blesse, degats materiels. Plaque 125 TUN 9012.",
+  "injuryReported": false,
+  "collisionDirection": "rear_left",
+  "contact": { "phone": "+21620000107" },
+  "confirmed": true,
+  "mediaRefs": [
+    "seed:honest-fr:vision:rear_left:cosmetic",
+    "seed:honest-fr:doc:constat:standard",
+    "seed:honest-fr:doc:invoice:body_panel"
+  ]
+}

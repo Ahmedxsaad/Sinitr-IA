@@ -1,8 +1,10 @@
 /**
  * Fixture manifest validator (see improvements P2.8). Walks `data/manifest.json`
  * and proves every listed claim, policy, graph seed, and media reference still
- * matches its contract schema. A stale or hand-edited fixture fails here instead
- * of surfacing as a confusing failure deep in the pipeline or, worse, on stage.
+ * matches its contract schema, and that every claim in the dataset produces the
+ * state and route it documents. A stale or hand-edited fixture fails here
+ * instead of surfacing as a confusing failure deep in the pipeline or, worse,
+ * on stage.
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -14,11 +16,25 @@ import {
   policyFixtureSchema,
 } from '@sinistria/contracts';
 import { parseSeedRef } from '@sinistria/evidence/seed-ref';
+import { processIntake } from '@sinistria/intake/core';
+import { processEvidence } from '@sinistria/evidence/core';
+import { processGraph } from '@sinistria/graph/core';
+import { processRecommend } from '@sinistria/claims/core';
+import { processNotify } from '@sinistria/notify/core';
+import { type ServiceClients, runClaimPipeline } from '@sinistria/gateway/core';
 import manifest from '../../../data/manifest.json';
-import honestClaim from '../../../data/claims/honest.json';
-import suspiciousClaim from '../../../data/claims/suspicious.json';
 import policyFixture from '../../../data/policies/motor-standard.json';
 import graphSeed from '../../../data/graph/seed.json';
+import honestClaim from '../../../data/claims/honest.json';
+import suspiciousClaim from '../../../data/claims/suspicious.json';
+import injuryClaim from '../../../data/claims/injury.json';
+import fireClaim from '../../../data/claims/fire.json';
+import rolloverClaim from '../../../data/claims/rollover.json';
+import sparseClaim from '../../../data/claims/sparse.json';
+import noInvoiceClaim from '../../../data/claims/no-invoice.json';
+import severeClaim from '../../../data/claims/severe.json';
+import honestFrClaim from '../../../data/claims/honest-fr.json';
+import invoiceMismatchClaim from '../../../data/claims/invoice-mismatch.json';
 
 // Maps a manifest claim id to the fixture module already imported above.
 // Reading files dynamically from disk would need Node's fs module inside a
@@ -27,6 +43,14 @@ import graphSeed from '../../../data/graph/seed.json';
 const CLAIM_FIXTURES: Record<string, unknown> = {
   honest: honestClaim,
   suspicious: suspiciousClaim,
+  injury: injuryClaim,
+  fire: fireClaim,
+  rollover: rolloverClaim,
+  sparse: sparseClaim,
+  'no-invoice': noInvoiceClaim,
+  severe: severeClaim,
+  'honest-fr': honestFrClaim,
+  'invoice-mismatch': invoiceMismatchClaim,
 };
 
 const POLICY_FIXTURES: Record<string, unknown> = {
@@ -35,6 +59,17 @@ const POLICY_FIXTURES: Record<string, unknown> = {
 
 const GRAPH_FIXTURES: Record<string, unknown> = {
   'data/graph/seed.json': graphSeed,
+};
+
+// Backs the pipeline with each service's pure core, exactly like the golden
+// and hero-case pipeline tests (see D-0005), so the outcome check below
+// exercises the real business rules, not a re-implementation of them.
+const clients: ServiceClients = {
+  intake: (request) => processIntake(request),
+  evidence: (request) => processEvidence(request),
+  graph: (request) => processGraph(request),
+  claims: (request) => processRecommend(request),
+  notify: (request) => processNotify(request),
 };
 
 describe('fixture manifest', () => {
@@ -98,6 +133,23 @@ describe('fixture manifest', () => {
           true,
         );
       }
+    }
+  });
+
+  it('every manifest claim reproduces its documented state and route', async () => {
+    for (const entry of parsedManifest.claims) {
+      const claim = createClaimRequestSchema.parse(CLAIM_FIXTURES[entry.id]);
+      const twin = await runClaimPipeline(
+        claim,
+        { claimId: `CLM-FIXTURE-${entry.id}`, correlationId: `corr-fixture-${entry.id}` },
+        clients,
+      );
+      expect(twin.state, `claim "${entry.id}" produced an unexpected state`).toBe(
+        entry.expectedState,
+      );
+      expect(twin.recommendation?.route, `claim "${entry.id}" produced an unexpected route`).toBe(
+        entry.expectedRoute,
+      );
     }
   });
 });

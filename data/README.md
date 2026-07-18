@@ -7,10 +7,13 @@ accuracy.
 - `manifest.json` - the checklist of every fixture below, validated against
   `fixtureManifestSchema` by `tests/e2e/src/fixtures.test.ts`. Add a fixture
   here whenever you add one to a folder below.
-- `claims/` - synthetic simple motor claims (target 10 to 20). `honest.json`
-  and `suspicious.json` are the two polished hero cases; each has a matching
-  `*.expected-twin.json` golden fixture asserted by
-  `tests/e2e/src/golden.test.ts`.
+- `claims/` - synthetic simple motor claims (10 so far, target up to 20).
+  `honest.json` and `suspicious.json` are the two polished hero cases; each has
+  a matching `*.expected-twin.json` golden fixture asserted by
+  `tests/e2e/src/golden.test.ts`. Every claim's manifest entry carries an
+  `expectedState` and `expectedRoute`, asserted against a real pipeline run by
+  `tests/e2e/src/fixtures.test.ts`, so the whole dataset's documented behavior
+  is checked, not just the two golden cases.
 - `policies/` - policy and guarantee examples with explicit coverage clauses,
   validated against `policyFixtureSchema`. Loaded by `services/claims`.
 - `media/` - real media files, if any are added later. The demo currently

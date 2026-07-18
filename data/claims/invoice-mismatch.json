@@ -1,0 +1,13 @@
+{
+  "locale": "derja",
+  "narrative": "Kont wa9ef fel carrefour, karhba jet men wara w darbitni fel arriere gauche. Personne blesse. Plaque 730 TUN 5566.",
+  "injuryReported": false,
+  "collisionDirection": "rear_left",
+  "contact": { "phone": "+21620000108" },
+  "confirmed": true,
+  "mediaRefs": [
+    "seed:invoice-mismatch:vision:rear_left:cosmetic",
+    "seed:invoice-mismatch:doc:constat:standard",
+    "seed:invoice-mismatch:doc:invoice:engine"
+  ]
+}
