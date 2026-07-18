@@ -7,5 +7,6 @@ export * from './clients.js';
 export * from './metrics.js';
 export * from './pipeline.js';
 export * from './decision.js';
+export * from './seed.js';
 export * from './store.js';
 export * from './twin.js';

@@ -8,12 +8,10 @@ import { adjusterDecisionRequestSchema, createClaimRequestSchema } from '@sinist
 import { newCorrelationId } from '@sinistria/logger';
 import type { FastifyInstance } from 'fastify';
 import { isAuthorizedAdjuster } from '../core/authz.js';
-import { createHttpClients } from '../core/clients.js';
+import type { ServiceClients } from '../core/clients.js';
 import { applyDecision } from '../core/decision.js';
 import { runClaimPipeline } from '../core/pipeline.js';
 import { claimStore } from '../core/store.js';
-
-const clients = createHttpClients();
 
 /** Generate a human-friendly claim id such as "CLM-2026-4F9A2C". */
 function newClaimId(): string {
@@ -22,7 +20,7 @@ function newClaimId(): string {
   return `CLM-${year}-${suffix}`;
 }
 
-export function registerGatewayRoutes(app: FastifyInstance): void {
+export function registerGatewayRoutes(app: FastifyInstance, clients: ServiceClients): void {
   // Open a new claim: run the full pipeline and store the result.
   app.post('/api/claims', async (request, reply) => {
     const parsed = createClaimRequestSchema.safeParse(request.body);

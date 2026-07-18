@@ -71,7 +71,7 @@ fixed and reverified.
 and a compose file wiring ports 4000-4005, 3000, 3001. Verify with a compose
 smoke run.
 
-### B-5 Queue seeded on boot in demo mode
+### B-5 Queue seeded on boot in demo mode - done, see D-0017
 
 In demo mode, the gateway pre-runs the manifest claims at startup so the
 cockpit opens with a realistic queue instead of an empty one. Reuse the
