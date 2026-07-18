@@ -78,7 +78,7 @@ target into the build rather than reading it at `next start` meant
 `GATEWAY_URL` had to be a Docker build arg, not just a runtime env var. Both
 fixed; see D-0016.
 
-### B-5 Queue seeded on boot in demo mode
+### B-5 Queue seeded on boot in demo mode - done, see D-0017
 
 In demo mode, the gateway pre-runs the manifest claims at startup so the
 cockpit opens with a realistic queue instead of an empty one. Reuse the
