@@ -89,3 +89,4 @@ part depends on.
   guidance, documentation set, and microservices skeleton.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Scaffolded the vertical slice: workspace tooling, contracts, six services, gateway pipeline, two apps, e2e and smoke tests. Verified end to end.
 - 2026-07-18 03:24 CET - Codex - Completed the repository audit, hardened input and error boundaries, fixed demo coverage paths, and documented verification and deployment controls.
+- 2026-07-18 12:47 CET - Claude - Moved the seeded policy and relationship graph into validated `data/` fixtures, added a fixture manifest with a validator and golden Twin fixtures for both hero cases (D-0011, D-0012). Full verification passed.

@@ -38,3 +38,4 @@ Purpose: ground the claim in policy, apply trust gates, and recommend a route.
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented policy grounding, trust gates, and the routed recommendation.
 - 2026-07-18 03:24 CET - Codex - Corrected coverage and investigation explanations and added focused recommendation tests.
+- 2026-07-18 12:47 CET - Claude - Moved the seed policy from an inline constant into `data/policies/motor-standard.json`, loaded and schema-validated at import time (D-0011).

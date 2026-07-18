@@ -159,3 +159,54 @@ Template:
   seam explicit.
 - Result: Configuration validation requires a token outside demo mode, and the
   remaining work is documented for production identity integration.
+
+## D-0011 - Seed data moves from inline constants to validated `data/` fixtures
+
+- Date: 2026-07-18
+- Context: The seeded policy (in `services/claims`) and the seeded relationship
+  graph (in `services/graph`) lived as inline TypeScript constants, so
+  `data/policies` and `data/graph` stayed empty even though the architecture
+  names them as the home for this data (see improvements P2.8).
+- Options: (a) leave the seeds inline in each service, (b) move them to JSON
+  fixtures under `data/`, loaded and validated at import time against new
+  contract schemas, (c) introduce a database for seed data now.
+- Decision: JSON fixtures under `data/policies` and `data/graph`, loaded through
+  new `policyFixtureSchema` and `graphSeedFixtureSchema` in
+  `packages/contracts`, parsed once at module load so a malformed edit fails
+  immediately rather than silently disabling coverage grounding or anomaly
+  detection.
+- Reason: Matches the architecture's stated data layout, keeps the seed content
+  reviewable as data instead of code, and the schema-validated load closes the
+  "trust hosted output at the boundary" gap for hand-edited fixtures too. A
+  database is out of scope for the offline demo slice.
+- Result: `groundCoverage` and the graph seed both read from `data/`. All
+  existing tests pass unchanged because the public function signatures did not
+  change.
+
+## D-0012 - Fixture manifest and golden Twin fixtures
+
+- Date: 2026-07-18
+- Context: Two P1/P2 improvements were still open: golden-file tests for the
+  two hero cases (P1.3) and a fixture manifest with a validator (P2.8). Day-3
+  hardening is where demos break, and a stale fixture should fail fast and
+  close to the change, not during a live run.
+- Options: (a) skip both and rely on the existing pipeline test's loose
+  assertions, (b) add golden fixtures only, (c) add both a fixture manifest
+  with a schema-validated checklist and golden Twin fixtures compared with
+  timestamps normalized.
+- Decision: (c). `data/manifest.json` lists every claim, policy, graph seed,
+  and media seed ref, validated by a new `fixtureManifestSchema`.
+  `tests/e2e/src/fixtures.test.ts` checks every manifest entry against its
+  contract schema and cross-checks that every media ref a claim fixture uses is
+  registered. `data/claims/{honest,suspicious}.expected-twin.json` hold the
+  full Accident Evidence Twin for each hero case (timestamps normalized to a
+  placeholder); `tests/e2e/src/golden.test.ts` reproduces each Twin from the
+  real pipeline and asserts equality.
+- Reason: The manifest is the single checklist a reviewer or a script can walk;
+  the golden Twins are the strongest regression guard available without a live
+  demo run, since they pin every field, not just the handful the original
+  pipeline test asserted on. Evidence's seed-ref parser gained a `./seed-ref`
+  export so the validator can check media refs without duplicating the format.
+- Result: 8 new tests pass (6 manifest, 2 golden), full verification
+  (typecheck, lint, format, 121 tests, both app builds, the live smoke script,
+  and `pnpm audit --prod`) is clean.

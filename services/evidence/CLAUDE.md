@@ -37,3 +37,4 @@ Purpose: improve the inputs, then assemble the Accident Evidence Twin.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the vision and OCR mocks, damage, consistency, and completeness.
+- 2026-07-18 12:47 CET - Claude - Exposed `./seed-ref` as a public export so the fixture manifest validator can check media refs without reaching into evidence's internals (D-0012).

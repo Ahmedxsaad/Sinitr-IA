@@ -8,6 +8,10 @@
     "./core": {
       "types": "./src/core/process.ts",
       "default": "./src/core/process.ts"
+    },
+    "./seed-ref": {
+      "types": "./src/adapters/seed-ref.ts",
+      "default": "./src/adapters/seed-ref.ts"
     }
   },
   "scripts": {

@@ -1,0 +1,57 @@
+{
+  "claims": [
+    {
+      "id": "honest",
+      "path": "data/claims/honest.json",
+      "description": "Honest, eligible claim: consistent story, image, and documents. Fast-tracks."
+    },
+    {
+      "id": "suspicious",
+      "path": "data/claims/suspicious.json",
+      "description": "Suspicious claim: damage location contradicts the reported collision, the invoice is mechanical against light damage, and the image and garage phone were seen on a prior claim. Routes to investigation."
+    }
+  ],
+  "policies": [
+    {
+      "policyId": "POL-DEMO-001",
+      "path": "data/policies/motor-standard.json"
+    }
+  ],
+  "graph": [
+    {
+      "path": "data/graph/seed.json"
+    }
+  ],
+  "media": [
+    {
+      "ref": "seed:honest:vision:rear_left:cosmetic",
+      "kind": "vision",
+      "description": "Cosmetic rear-left damage photo for the honest case."
+    },
+    {
+      "ref": "seed:honest:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat (accident report) for the honest case."
+    },
+    {
+      "ref": "seed:honest:doc:invoice:body_panel",
+      "kind": "doc",
+      "description": "Body-panel repair invoice for the honest case, consistent with cosmetic damage."
+    },
+    {
+      "ref": "seed:suspicious:vision:front_right:moderate",
+      "kind": "vision",
+      "description": "Moderate front-right damage photo. Contradicts the reported rear-left collision and matches an image already seen on a prior claim."
+    },
+    {
+      "ref": "seed:suspicious:doc:constat:standard",
+      "kind": "doc",
+      "description": "Standard constat for the suspicious case."
+    },
+    {
+      "ref": "seed:suspicious:doc:invoice:engine",
+      "kind": "doc",
+      "description": "Engine repair invoice for the suspicious case. Mismatched against the light visible damage."
+    }
+  ]
+}

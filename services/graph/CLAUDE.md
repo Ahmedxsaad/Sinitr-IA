@@ -35,3 +35,4 @@ Purpose: surface relationships and anomalies behind a suspicious claim.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created part
   skeleton and guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the seeded relationship graph and anomaly detection.
+- 2026-07-18 12:47 CET - Claude - Moved the seed graph from an inline constant into `data/graph/seed.json`, loaded and schema-validated at import time (D-0011).
