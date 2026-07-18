@@ -35,5 +35,6 @@ so nothing is redefined elsewhere.
 
 ## Changelog
 
-- 2026-07-18 00:47 CET - Claude (Opus 4.8) for @Ahmedxsaad - Created contract
+- 2026-07-18 00:47 CET - @Ahmedxsaad - Created contract
   package guidance.
+- 2026-07-18 02:13 CET - @Ahmedxsaad - Implemented the Evidence Twin schema, enums, primitives, DTOs, and state machine.

@@ -1,0 +1,25 @@
+{
+  "name": "@sinistria/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Accident Evidence Twin schema and every cross-service payload, defined once.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

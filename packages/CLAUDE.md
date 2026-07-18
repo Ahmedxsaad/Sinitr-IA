@@ -10,8 +10,9 @@ running process.
 
 - `contracts` - Accident Evidence Twin schema, DTOs, event types. The single
   source of truth. Has its own CLAUDE.md.
-- `config` - typed environment parsing and validation, shared constants.
+- `config` - typed environment parsing and validation, shared constants, thresholds.
 - `logger` - structured logging and request context (carries the correlation id).
+- `service-kit` - the shared Fastify bootstrap (health, correlation id, shutdown).
 - `ui` - shared React components and design tokens for both frontends.
 
 ## Rules
@@ -26,5 +27,6 @@ running process.
 
 ## Changelog
 
-- 2026-07-18 00:47 CET - Claude (Opus 4.8) for @Ahmedxsaad - Created shared
+- 2026-07-18 00:47 CET - @Ahmedxsaad - Created shared
   package guidance.
+- 2026-07-18 02:13 CET - @Ahmedxsaad - Added service-kit to the shared packages and listed it here.
