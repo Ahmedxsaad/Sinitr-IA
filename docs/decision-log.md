@@ -327,7 +327,119 @@ Template:
   index). Full verification (typecheck, lint, format, 134 tests, both app
   builds, the live smoke script) is clean.
 
-## D-0016 - Situational signals: a standalone service, not a pipeline input
+## D-0016 - Docker images build from the full monorepo context, no multi-stage optimization
+
+- Date: 2026-07-18
+- Context: The backlog (B-4) called for one Dockerfile per service and app plus
+  a compose file, closing the gap between architecture.md's promised
+  `docker compose` local orchestration and the empty `infra/docker` and
+  `infra/compose` directories. Every workspace member depends on sibling
+  packages through pnpm's `workspace:*` protocol, which pnpm resolves with
+  symlinks into the actual source directories, not just their `package.json`
+  files. Backend services also run via `tsx` directly in production
+  (`"start": "tsx src/server.ts"`), so `tsx` and `typescript`, both
+  devDependencies, must be present at runtime.
+- Options: (a) a single multi-stage Dockerfile with per-service build targets
+  selected by `--target`, pruning to a minimal runtime layer with
+  `pnpm deploy` or manual copying, (b) one small Dockerfile per service and app
+  that copies the whole repository and runs a full `pnpm install
+--frozen-lockfile` (no `--prod`, since `tsx` must survive), (c) precompile
+  services to plain JavaScript and ship only `dist/` plus production
+  dependencies.
+- Decision: (b). Each Dockerfile in `infra/docker` is `FROM node:20-alpine`,
+  `COPY . .`, `pnpm install --frozen-lockfile`, then a `pnpm --filter
+@sinistria/<name> start` (apps run `build` first). `infra/compose/docker-compose.yml`
+  wires all eight with ports 4000-4005, 3000, 3001, healthchecks on `/health`,
+  and `depends_on: condition: service_healthy` so the gateway waits for its five
+  dependencies and both apps wait for the gateway. Backend services get
+  `DEMO_MODE=true` by default (matching `.env.example`) and the gateway's
+  downstream URLs point at compose service hostnames instead of `localhost`
+  (`INTAKE_URL=http://intake:4001`, etc.); both apps get
+  `GATEWAY_URL=http://gateway:4000` for their server-side Next.js rewrite.
+- Reason: The 72-hour build has no capacity to restructure `tsx`-based services
+  around a compile step or to hand-prune a pnpm workspace's symlinked
+  `node_modules` correctly. A full-repo build context keeps every Dockerfile
+  small and correct at the cost of image size and per-service rebuild time,
+  which does not matter for an offline demo. Multi-stage pruning is a real
+  option later (see improvements.md) once services compile to plain JS.
+- Result: `docker compose -f infra/compose/docker-compose.yml up --build`
+  brings up all six services and both apps. Verified over the compose network,
+  including a second cold `up` after a full `down` (all eight containers
+  healthy both times): the honest claim fast-tracks and notifies after
+  approval, the suspicious claim routes to `investigate` with a populated
+  `graphView` (3 nodes, 3 edges), `GET /api/metrics` reflects both claims
+  correctly through the cockpit's proxy, container logs carry no unexpected
+  errors, and no `.env` (only the placeholder `.env.example`) or other secret
+  material leaked into an image. Three problems surfaced during verification,
+  all fixed before landing:
+  1. The sandboxed build environment's registry access is slow enough that a
+     full `pnpm install --frozen-lockfile` (about 225 packages) intermittently
+     hit `ETIMEDOUT` on a single tarball and failed the whole image. Each
+     Dockerfile now sets `npm_config_fetch_retries`, `npm_config_fetch_timeout`,
+     and a lower `npm_config_network_concurrency` before the install, which is
+     a reasonable resiliency default regardless of environment, not a workaround
+     specific to this sandbox.
+  2. The `wget`-based healthchecks (`http://localhost:<port>/health`) failed
+     with `ECONNREFUSED` even though the service was listening: Alpine's musl
+     resolves `localhost` to `::1` first, and Fastify binds `0.0.0.0` (IPv4
+     only), so the IPv6 attempt is refused and busybox `wget` does not fall
+     back to IPv4. Healthchecks now target `127.0.0.1` directly.
+  3. The cockpit's `/api/metrics` proxy returned 500 (`ECONNREFUSED` to
+     `localhost:4000`) even with `GATEWAY_URL=http://gateway:4000` set as a
+     container runtime environment variable. Next.js resolves a `rewrites()`
+     destination once at `next build` time into `routes-manifest.json`; a
+     runtime-only environment variable arrives too late to affect it. Fixed by
+     passing `GATEWAY_URL` as a Docker build arg (`infra/docker/mobile.Dockerfile`,
+     `infra/docker/cockpit.Dockerfile`) so it is set before `pnpm build` runs,
+     with `infra/compose/docker-compose.yml` supplying it via `build.args`.
+     `infra/docker/.gitkeep` and `infra/compose/.gitkeep` were removed now that
+     both directories hold real files.
+
+## D-0017 - Gateway seeds the demo queue in the background after its own health is up
+
+- Date: 2026-07-18
+- Context: The backlog (B-5) asked for a realistic cockpit queue at boot in
+  demo mode instead of an empty one, so a demo does not depend on someone
+  submitting the first live claim on stage. Built on a separate branch from
+  B-4 (Docker orchestration), so numbered D-0017 to avoid colliding with
+  D-0016 once both merge (the same pattern D-0014 used against D-0013).
+  `runClaimPipeline` already depends only on the `ServiceClients` interface
+  (D-0005), and the gateway's own routes already call it over real HTTP
+  clients (`createHttpClients`), never over the service's own internals.
+- Options: (a) have the gateway `fetch` its own `POST /api/claims` endpoint
+  once per manifest claim at boot, (b) call `runClaimPipeline` directly with
+  the gateway's existing HTTP clients during startup, writing straight into
+  the claim store, no self-call to the gateway's own API, (c) seed the store
+  with hand-built Twins instead of running the real pipeline.
+- Decision: (b). A new `services/gateway/src/core/seed.ts` exports
+  `seedDemoQueue(clients, logger)`: it waits for intake, evidence, graph, and
+  claims to answer their own `/health` (bounded polling, not a fixed sleep,
+  since local `pnpm dev` starts all six processes concurrently with no
+  ordering guarantee), then runs every `data/manifest.json` claim through
+  `runClaimPipeline` with a stable id (`CLM-DEMO-<ID>`) and saves each Twin
+  into the existing `claimStore`. `server.ts` calls it only after `start()`
+  resolves and only when `DEMO_MODE` is on, without awaiting it, so the
+  gateway's own `/health` is never delayed or put at risk by a slow or
+  unreachable dependency. `routes/claims.ts` no longer constructs its own
+  `ServiceClients`; `server.ts` builds one instance and passes it to both the
+  routes and the seeder.
+- Reason: Option (a) is what the backlog explicitly ruled out ("no HTTP
+  self-calls"): a self-call adds a network hop for no benefit and couples the
+  gateway's own boot sequence to its own route handling. Option (c) would
+  drift from the real pipeline the moment either changes. Not awaiting the
+  seed keeps the gateway's health endpoint, which docker compose and
+  `scripts/smoke.sh` both depend on, honest and immediate regardless of demo
+  seeding.
+- Result: Verified against the hardest ordering case, not just docker
+  compose's dependency-gated one: starting all six services concurrently
+  (mirroring `scripts/smoke.sh`'s own pattern) still answers gateway `/health`
+  immediately, and `GET /api/claims` reaches all 10 manifest claims within
+  seconds, each with its manifest-documented state and route. The unmodified
+  `scripts/smoke.sh` still passes unchanged (it submits its own honest claim
+  under a fresh id alongside the ten seeded ones). Full verification
+  (typecheck, lint, format, 134 tests, both app builds) is clean.
+
+## D-0018 - Situational signals: a standalone service, not a pipeline input
 
 - Date: 2026-07-18
 - Context: The maintainer had built a "critical news agent" for a prior
@@ -336,7 +448,10 @@ Template:
   disasters, epidemics, and industrial accidents, and surfaces an
   `urgency_score` and a `business_opportunity` for insurance executives. The
   ask was to add "the news stuff" to Sinistr'IA as an extra feature without
-  touching the existing claim flow.
+  touching the existing claim flow. Built on a separate branch from B-4
+  (Docker) and B-5 (seed queue), so numbered D-0018 to avoid colliding with
+  D-0016 and D-0017 once all three merge, the same pattern D-0014 used
+  against D-0013.
 - Options: (a) reuse the Python agent close to verbatim as a new Python
   service, (b) port the real logic to TypeScript as a new standalone service
   with no connection to the claim pipeline, (c) go further and use it to

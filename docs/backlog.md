@@ -64,14 +64,21 @@ fixed and reverified.
 
 ## P1 - strong if time allows
 
-### B-4 Docker orchestration
+### B-4 Docker orchestration - done, see D-0016
 
 `infra/docker` and `infra/compose` are empty but the architecture promises
 `docker compose` for local runs. Add one small Dockerfile per service and app
 and a compose file wiring ports 4000-4005, 3000, 3001. Verify with a compose
 smoke run.
 
-### B-5 Queue seeded on boot in demo mode
+Verification caught two Alpine/Next.js specific bugs beyond the Dockerfiles
+themselves: musl's `localhost` resolving to `::1` before `0.0.0.0`-bound
+services broke `wget` healthchecks, and Next.js baking the `/api` rewrite
+target into the build rather than reading it at `next start` meant
+`GATEWAY_URL` had to be a Docker build arg, not just a runtime env var. Both
+fixed; see D-0016.
+
+### B-5 Queue seeded on boot in demo mode - done, see D-0017
 
 In demo mode, the gateway pre-runs the manifest claims at startup so the
 cockpit opens with a realistic queue instead of an empty one. Reuse the
@@ -99,13 +106,13 @@ path depend on it.
 
 ## Bonus features (outside the P0-P2 list above)
 
-### B-9 Situational signals - done, see D-0016
+### B-9 Situational signals - done, see D-0018
 
 A standalone `services/signals` classifies regional news (floods, road
 incidents, outbreaks) with a criticality label, ported from a prior project's
 Python news-monitoring agent per the maintainer's request. Reached only
 through a new additive gateway route and its own cockpit page; never touches
-the claim pipeline or the Twin. See D-0016 for the full tradeoff, including
+the claim pipeline or the Twin. See D-0018 for the full tradeoff, including
 why `urgency_score` became a label and why `business_opportunity` was dropped.
 
 ### B-10 Per-claim event corroboration (a signals follow-up, not started)
@@ -114,7 +121,7 @@ Match a signal event's time and place against a specific claim's `occurredAt`
 and `location` (both already evidenced Twin fields), and surface the result as
 a fourth consistency check next to the existing story-vs-image and
 invoice-vs-damage checks. This is the deeper integration the maintainer
-considered and deferred when scoping B-9 (see D-0016, option c). It is a Twin
+considered and deferred when scoping B-9 (see D-0018, option c). It is a Twin
 schema change and a pipeline call, so it needs its own decision-log entry and
 should not be started without confirming the scope first, per the working
 agreement in [../CLAUDE.md](../CLAUDE.md).
