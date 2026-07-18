@@ -71,7 +71,8 @@ Evidence Twin (`packages/contracts`) is the single shared contract that every
 part depends on.
 
 - apps: `mobile`, `cockpit`
-- services: `gateway`, `intake`, `evidence`, `claims`, `graph`, `notify`
+- services: `gateway`, `intake`, `evidence`, `claims`, `graph`, `notify`,
+  `signals` (standalone situational feed, not part of the claim pipeline)
 - packages: `contracts`, `config`, `logger`, `service-kit`, `ui`
 
 ## Product guardrails (never break)

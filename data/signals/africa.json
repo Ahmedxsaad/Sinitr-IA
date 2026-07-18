@@ -1,0 +1,29 @@
+{
+  "region": "africa",
+  "items": [
+    {
+      "title": "Cholera outbreak declared in coastal provinces, hospitals on alert",
+      "description": "Health authorities have declared an outbreak after a sharp rise in confirmed cases. Emergency response teams have been deployed to the worst-affected districts.",
+      "url": "https://example.com/af/cholera-outbreak",
+      "publishedAt": "2026-07-17T09:00:00Z"
+    },
+    {
+      "title": "Magnitude 5.2 earthquake felt across the region, buildings evacuated",
+      "description": "A moderate earthquake struck early this morning. There are reports of structural damage to older buildings; assessment teams are surveying affected areas.",
+      "url": "https://example.com/af/earthquake",
+      "publishedAt": "2026-07-18T04:30:00Z"
+    },
+    {
+      "title": "Seasonal rains bring localized flooding to farmland",
+      "description": "Heavier-than-usual seasonal rains have flooded low-lying farmland in several districts, with some rural roads temporarily cut off.",
+      "url": "https://example.com/af/seasonal-flooding",
+      "publishedAt": "2026-07-16T13:40:00Z"
+    },
+    {
+      "title": "Regional summit on trade cooperation concludes with new accord",
+      "description": "Heads of state signed a cooperation accord aimed at easing cross-border trade and investment.",
+      "url": "https://example.com/af/trade-summit",
+      "publishedAt": "2026-07-15T18:00:00Z"
+    }
+  ]
+}

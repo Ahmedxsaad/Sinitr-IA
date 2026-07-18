@@ -43,3 +43,4 @@ so nothing is redefined elsewhere.
 - 2026-07-18 13:10 CET - Claude - Added `expectedState` and `expectedRoute` to the manifest claim entry schema, so the dataset's documented outcomes are data the validator checks, not prose (D-0013).
 - 2026-07-18 13:20 CET - Claude - Added `metricsResultSchema` for the gateway's live metrics response (D-0014).
 - 2026-07-18 14:10 CET - Claude - Added `graphNodeSchema`, `graphEdgeSchema`, and `graphViewSchema`, and added `graphView` to the Twin (D-0015).
+- 2026-07-18 15:00 CET - Claude - Added `signals.ts`: region, criticality, relevance, raw-item, and event schemas for the new standalone signals service. Not part of the Twin (D-0016).

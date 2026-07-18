@@ -5,12 +5,14 @@ import { getConfig } from '@sinistria/config';
 import { createServer, start } from '@sinistria/service-kit';
 import { registerGatewayRoutes } from './routes/claims.js';
 import { registerMetricsRoutes } from './routes/metrics.js';
+import { registerSignalsRoutes } from './routes/signals.js';
 
 const app = createServer({
   name: 'gateway',
   register: async (instance) => {
     await registerGatewayRoutes(instance);
     await registerMetricsRoutes(instance);
+    await registerSignalsRoutes(instance);
   },
 });
 
