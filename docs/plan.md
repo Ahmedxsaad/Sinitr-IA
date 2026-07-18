@@ -54,17 +54,17 @@ Full folder tree and service contracts are in [architecture.md](architecture.md)
 Ownership uses workstream labels, not personal names, so the mapping survives
 team changes.
 
-| Part                | Workstream owner        | Responsibility                                            |
-| ------------------- | ----------------------- | --------------------------------------------------------- |
-| apps/mobile         | Mobile and live journey | Derja customer journey, guided capture, link or QR entry  |
-| apps/cockpit        | Cockpit and visual story| Adjuster review of the Twin, routes, approve action       |
-| services/gateway    | Integration             | Single entry point, routing, auth, aggregation            |
-| services/intake     | Voice and intake        | Speech to structured FNOL, safety and eligibility gates   |
-| services/evidence   | Multimodal intelligence | OCR, damage localization, consistency, builds the Twin    |
-| services/claims     | Claims logic            | Policy grounding, trust gates, recommendation and route   |
-| services/graph      | Multimodal intelligence | Relationship graph and anomaly flags                      |
-| services/notify     | Integration             | SMS and status updates                                    |
-| packages/contracts  | Shared, all workstreams | Accident Evidence Twin schema, DTOs, event types          |
+| Part               | Workstream owner         | Responsibility                                           |
+| ------------------ | ------------------------ | -------------------------------------------------------- |
+| apps/mobile        | Mobile and live journey  | Derja customer journey, guided capture, link or QR entry |
+| apps/cockpit       | Cockpit and visual story | Adjuster review of the Twin, routes, approve action      |
+| services/gateway   | Integration              | Single entry point, routing, auth, aggregation           |
+| services/intake    | Voice and intake         | Speech to structured FNOL, safety and eligibility gates  |
+| services/evidence  | Multimodal intelligence  | OCR, damage localization, consistency, builds the Twin   |
+| services/claims    | Claims logic             | Policy grounding, trust gates, recommendation and route  |
+| services/graph     | Multimodal intelligence  | Relationship graph and anomaly flags                     |
+| services/notify    | Integration              | SMS and status updates                                   |
+| packages/contracts | Shared, all workstreams  | Accident Evidence Twin schema, DTOs, event types         |
 
 ## 5. Data flow (the evidence loop)
 

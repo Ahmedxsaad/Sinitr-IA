@@ -15,7 +15,7 @@ Process and style rules. The always-loaded summary is in
 
 Format:
 
-```
+```text
 type(scope): short imperative summary
 ```
 
@@ -30,7 +30,7 @@ type(scope): short imperative summary
 
 Examples:
 
-```
+```text
 feat(contracts): add Accident Evidence Twin schema
 fix(intake): correct Derja safety-gate fallthrough
 docs(plan): record the honest-claim critical path
@@ -84,7 +84,7 @@ docs(plan): record the honest-claim critical path
 
 Every `CLAUDE.md` ends with a Changelog. Add one line per meaningful change:
 
-```
+```text
 YYYY-MM-DD HH:MM TZ - author - what changed
 ```
 

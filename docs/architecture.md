@@ -19,7 +19,7 @@ roadmap see [plan.md](plan.md).
 
 ## 2. Folder tree
 
-```
+```text
 sinistria/
   apps/
     mobile/        Customer Derja journey (Next.js)
@@ -33,8 +33,9 @@ sinistria/
     notify/        SMS and status updates
   packages/
     contracts/     Accident Evidence Twin schema, DTOs, event types (shared)
-    config/        Env parsing and validation, shared constants
+    config/        Env parsing and validation, shared constants and thresholds
     logger/        Structured logging and request context
+    service-kit/   Shared Fastify bootstrap (health, correlation id, shutdown)
     ui/            Shared React components and design tokens
   infra/
     docker/        Per-service Dockerfiles
@@ -45,8 +46,14 @@ sinistria/
     media/         Constat and damage images, audio samples
     graph/         Seeded relationship graph
   docs/            Plan, architecture, conventions, decisions, improvements
-  scripts/         Developer and setup scripts
+  scripts/         Developer and setup scripts (including smoke.sh)
+  tests/
+    e2e/           In-process end-to-end pipeline tests over the demo cases
 ```
+
+Each service also exposes its pure core through a `./core` package export. The
+Fastify route is a thin wrapper over that core, so the same logic runs over HTTP
+in production and in-process in the e2e test. See decision D-0005.
 
 Each app, each service, and the `contracts` package carry their own `CLAUDE.md`
 and an `AGENT.md` symlink to it. See [conventions.md](conventions.md).
@@ -111,7 +118,7 @@ customer communication, and a full audit trail.
 
 ## 5. Request path (honest claim)
 
-```
+```text
 mobile
   -> gateway            (auth, route)
   -> intake             (transcribe, structure FNOL, safety and eligibility gates)
@@ -147,7 +154,8 @@ Automatic preparation, then trust gates, then human-owned action.
 
 - `contracts`. The Twin schema (Zod), DTOs, enums (routes, confidence labels),
   and service event types. The heart of the system.
-- `config`. Typed environment parsing and validation, shared constants, feature
-  flags.
+- `config`. Typed environment parsing and validation, shared constants, and the
+  decision thresholds.
 - `logger`. Structured logging with request context.
+- `service-kit`. The shared Fastify bootstrap used by every service.
 - `ui`. Shared React components and design tokens used by both frontends.

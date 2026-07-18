@@ -5,8 +5,8 @@ the format note in [conventions.md](conventions.md).
 
 Template:
 
-```
-### D-XXXX - Title
+```text
+## D-XXXX - Title
 - Date:
 - Context:
 - Options:
@@ -17,7 +17,8 @@ Template:
 
 ---
 
-### D-0001 - Repository shape: microservices monorepo
+## D-0001 - Repository shape: microservices monorepo
+
 - Date: 2026-07-18
 - Context: Four contributors need to work in parallel with minimal collision,
   and the product has distinct surfaces (customer journey, adjuster cockpit) and
@@ -30,7 +31,8 @@ Template:
   repos would add coordination cost during a 72-hour build.
 - Result: Structure created. Confirmed as the working shape.
 
-### D-0002 - Language: TypeScript across frontends and services
+## D-0002 - Language: TypeScript across frontends and services
+
 - Date: 2026-07-18
 - Context: The intelligence layer relies on hosted speech, vision, and language
   APIs rather than local model training, so any language can call them over
@@ -45,7 +47,8 @@ Template:
 - Result: Adopted. Revisit only if a specific service needs a Python-only
   library.
 
-### D-0003 - Governance files: CLAUDE.md with AGENT.md symlink per part
+## D-0003 - Governance files: CLAUDE.md with AGENT.md symlink per part
+
 - Date: 2026-07-18
 - Context: The team uses AI agents and wants consistent rules without
   duplication, across tools that read either `CLAUDE.md` or `AGENT.md`.
@@ -58,3 +61,53 @@ Template:
 - Result: Applied to the root and to each app, each service, and the contracts
   package. Note: symlinks need `git config core.symlinks true` on Windows
   checkouts; the team is on Linux and macOS.
+
+## D-0004 - Add a shared service-kit package
+
+- Date: 2026-07-18
+- Context: Six Fastify services each need the same bootstrap (health endpoint,
+  correlation id, error handling, graceful shutdown), and duplicating it would
+  drift.
+- Options: (a) copy the setup into each service, (b) a shared `service-kit`
+  package.
+- Decision: A shared `packages/service-kit` used by every service.
+- Reason: One place for cross-cutting concerns keeps each service focused on its
+  own domain and keeps the setup consistent.
+- Result: Adopted. `createServer` and `start` back all six services.
+
+## D-0005 - Test the pipeline in-process via service core exports
+
+- Date: 2026-07-18
+- Context: The vertical slice must be provably end-to-end without the flakiness of
+  starting six processes inside the test runner.
+- Options: (a) integration test that boots all services over HTTP, (b) an
+  in-process test that drives the gateway pipeline against each service's core.
+- Decision: Each service exposes its pure core through a `./core` package export,
+  and the `tests/e2e` package wires those into the gateway's ServiceClients.
+- Reason: The gateway pipeline depends only on the ServiceClients interface, so
+  the same orchestration is exercised in-process, deterministically and fast. The
+  live HTTP path is covered separately by `scripts/smoke.sh`.
+- Result: Two demo cases pass in-process; the smoke script passes over HTTP.
+
+## D-0006 - Frontends proxy the gateway via Next rewrites
+
+- Date: 2026-07-18
+- Context: The browser apps must call the gateway, which runs on a different port.
+- Options: (a) enable CORS on the gateway, (b) proxy `/api/*` from each app to
+  the gateway with a Next.js rewrite.
+- Decision: Next rewrites, so the browser makes same-origin calls.
+- Reason: No CORS surface to secure, the gateway URL stays server-side, and the
+  frontends stay simple.
+- Result: Both apps call `/api/*` and reach the gateway with no CORS config.
+
+## D-0007 - In-memory claim store for the slice
+
+- Date: 2026-07-18
+- Context: The gateway must hold a claim between submission and the adjuster
+  decision, but a database is out of scope for the first slice.
+- Options: (a) add a database now, (b) an in-memory store with a clear interface.
+- Decision: An in-memory `ClaimStore` in the gateway, with the contact phone kept
+  out of the Twin (data minimization).
+- Reason: It proves the flow without infrastructure and has a clean seam to
+  replace with persistence later.
+- Result: In use. Claims survive submit, review, and approval within one process.
