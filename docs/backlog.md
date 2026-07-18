@@ -84,11 +84,16 @@ In demo mode, the gateway pre-runs the manifest claims at startup so the
 cockpit opens with a realistic queue instead of an empty one. Reuse the
 in-process pipeline; no HTTP self-calls.
 
-### B-6 UI polish pass
+### B-6 UI polish pass - done, see D-0018
 
 Move shared colors, spacing, and route/confidence badge styles into
 `packages/ui` and use them in both apps. Check the cockpit against the
 decision, why, proof hierarchy in [architecture.md](architecture.md) section 3.
+
+Scaffolded `packages/ui` for the first time (`RouteBadge`, `ConfidenceBadge`,
+shared tokens.css) rather than a fuller component library; caught mobile's
+route text always rendering green regardless of the actual route, and that
+confidence had no badge anywhere, both fixed by the shared components.
 
 ## P2 - stretch
 

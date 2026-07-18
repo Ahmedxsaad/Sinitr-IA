@@ -1,0 +1,53 @@
+/**
+ * Shared design tokens: the colors, spacing, and badge styles common to both
+ * frontends. Each app's own globals.css still defines its own background,
+ * panel, text, and muted tokens (mobile is dark for roadside use, cockpit is
+ * light for desk use); only what is genuinely shared lives here.
+ */
+:root {
+  --sinistria-green-900: #0b3d2e;
+  --sinistria-green-700: #14634a;
+  --sinistria-green-500: #1f9d6b;
+  --sinistria-amber: #c9822f;
+  --sinistria-red: #b5482f;
+
+  --sinistria-space-1: 4px;
+  --sinistria-space-2: 8px;
+  --sinistria-space-3: 12px;
+  --sinistria-space-4: 16px;
+  --sinistria-space-5: 24px;
+}
+
+/*
+ * Route and confidence share one visual language: green reads as "trust it",
+ * amber as "check it", red as "look closely". A route and a confidence label
+ * of the same color never disagree in meaning, which is what lets an adjuster
+ * scan a queue by color instead of reading every cell.
+ */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+
+.badge-route-fast_track,
+.badge-confidence-high {
+  background: rgba(31, 157, 107, 0.15);
+  color: var(--sinistria-green-700);
+}
+
+.badge-route-review,
+.badge-confidence-medium {
+  background: rgba(201, 130, 47, 0.15);
+  color: var(--sinistria-amber);
+}
+
+.badge-route-investigate,
+.badge-confidence-low {
+  background: rgba(181, 72, 47, 0.15);
+  color: var(--sinistria-red);
+}
