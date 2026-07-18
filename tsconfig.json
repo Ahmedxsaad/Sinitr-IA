@@ -1,0 +1,12 @@
+{
+  // Root config for editors and the repo-wide typecheck of Node/TypeScript
+  // members. Next.js apps carry their own tsconfig because they need JSX and
+  // DOM libs. Each package and service also has its own tsconfig so it can be
+  // typechecked in isolation by Turborepo.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["packages/*/src", "services/*/src"]
+}
