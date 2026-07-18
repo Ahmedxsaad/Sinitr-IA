@@ -41,4 +41,4 @@ outbreaks) while reviewing claims. Additive and standalone.
 
 - 2026-07-18 - Claude - Created the standalone signals service: mock feed
   adapter over seeded fixtures, deterministic rules classifier, and the
-  `/signals` route (D-0016).
+  `/signals` route (D-0018).

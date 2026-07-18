@@ -30,4 +30,4 @@ running process.
 - 2026-07-18 00:47 CET - @Ahmedxsaad - Created shared
   package guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Added service-kit to the shared packages and listed it here.
-- 2026-07-18 15:00 CET - Claude - Added `SIGNALS_PORT` and `SIGNALS_URL` to `config`'s env schema for the new standalone signals service (D-0016).
+- 2026-07-18 15:00 CET - Claude - Added `SIGNALS_PORT` and `SIGNALS_URL` to `config`'s env schema for the new standalone signals service (D-0018).
