@@ -543,3 +543,46 @@ undefined}>` flips the whole form to RTL only for Arabic, leaving Derja
   order all flip), and `Tab` produces a clearly visible focus ring on the
   next control. Full verification (typecheck, lint, format, 134 tests, both
   app builds) is clean.
+
+## D-0020 - Both apps move to one dark, cinematic design language
+
+- Date: 2026-07-18
+- Context: The two apps had drifted into different visual registers (mobile
+  dark for roadside use, cockpit light for desk use, per D-0018) and both
+  used only system fonts and flat surfaces. Asked for a stage-demo-ready,
+  premium redesign across both apps, sharing one identity rather than each
+  app inventing its own.
+- Options: (a) keep cockpit light and only polish mobile, (b) a shared dark,
+  glass-and-glow cinematic language for both apps (deep emerald aurora
+  background, glass cards, glowing status badges, `next/font` display and
+  body faces, a brand mark, staggered entrance motion), (c) a light,
+  restrained corporate look for both apps.
+- Decision: (b). `packages/ui/src/tokens.css` now owns the entire shared
+  foundation, not just badge colors: the ink and glass surface tokens
+  (`--bg`, `--panel`, `--text`, `--muted`, `--line`, previously duplicated
+  per app per D-0018) moved here, plus gradients, glow shadows, a spacing and
+  radius scale, and a shared `.rise` entrance-animation utility. Added
+  `BrandMark`, an inline SVG lens/eye glyph, as a third shared component
+  alongside `RouteBadge`/`ConfidenceBadge`. Both apps' badges gained a lit
+  status dot and a colored glow matching their route/confidence color.
+  `next/font/google` (Space Grotesk for headings, Inter for body) is wired
+  into both `layout.tsx` files via CSS variables, so the font files are
+  self-hosted in the build output and the demo stays offline-safe. Cockpit's
+  queue gained an animated count-up on its metric tiles (`useCountUp`, a
+  small `requestAnimationFrame` easing hook, presentational only, keyed off
+  the metric value so a re-poll of the same number does not replay it).
+- Reason: A shared foundation token file, not per-app duplication, is what
+  keeps mobile and cockpit reading as one product as more polish gets added;
+  D-0018 already duplicated the ink tokens once and that was the seam most
+  likely to drift further. `next/font` was chosen over a CDN `<link>` for
+  fonts specifically because the offline-first demo requirement (D-0016,
+  `.env.example`'s `DEMO_MODE`) rules out a runtime fetch to Google's font
+  CDN; `next/font` downloads and self-hosts at build time instead.
+- Result: Full verification (typecheck, lint, format, 134 tests, both app
+  builds) is clean. Verified live with Playwright across the full stack (all
+  six services plus both apps): the honest demo case renders a glowing green
+  `FAST TRACK` badge, the suspicious case a glowing red `INVESTIGATE` badge,
+  Arabic RTL still mirrors correctly under the new layout, the cockpit queue's
+  metric tiles count up on load, and the relationship graph reveal renders
+  with glowing nodes against the dark background. No console errors in any
+  captured screenshot. `bash scripts/smoke.sh` still passes unchanged.

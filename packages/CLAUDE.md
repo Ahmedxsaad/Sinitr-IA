@@ -31,3 +31,4 @@ running process.
   package guidance.
 - 2026-07-18 02:13 CET - @Ahmedxsaad - Added service-kit to the shared packages and listed it here.
 - 2026-07-18 16:20 CET - Claude - Scaffolded `ui` as a real workspace member (`RouteBadge`, `ConfidenceBadge`, shared tokens.css), consumed by both `apps/mobile` and `apps/cockpit` (D-0018).
+- 2026-07-18 18:10 CET - Claude - `ui`'s tokens.css now owns the full dark cinematic foundation (ink and glass surfaces, gradients, glow shadows, motion), not just badge colors, and gained a third component, `BrandMark` (D-0020).
